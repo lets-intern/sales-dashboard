@@ -4,7 +4,24 @@ export type Client = {
   contact_person: string;
   contact_email: string;
   contact_phone: string;
+  biz_reg_no: string;
+  tax_email: string;
   notes: string;
+};
+
+export type StatementLine = {
+  date: string; // 거래일 (YYMMDD)
+  name: string; // 항목
+  list_price: number; // 정가
+  sale_price: number; // 할인가
+  note: string; // 비고
+};
+
+export type StatementData = {
+  receipt_date: string; // 영수일 (YYYY-MM-DD)
+  lines: StatementLine[];
+  pay_method: string; // 결제 방법
+  contact_note: string; // 담당자 안내문
 };
 
 export type Deal = {
@@ -22,6 +39,7 @@ export type Deal = {
   period_start: string | null;
   period_end: string | null;
   comm_notes: string;
+  statement: StatementData | null;
 };
 
 export type Item = {

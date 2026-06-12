@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useStore } from "./store";
 import AmountInput from "./AmountInput";
 import { TrashIcon } from "./icons";
+import StatementModal from "./StatementModal";
 import { DEAL_STATUS, ITEM_STATUS, SEGMENTS, TYPES } from "@/lib/constants";
-import { itemName } from "@/lib/utils";
+import { itemName, quarterOf } from "@/lib/utils";
 
 export default function Drawer({
   dealId,
@@ -33,6 +34,8 @@ export default function Drawer({
     return () => document.removeEventListener("keydown", onKey);
   }, [onClose]);
 
+  const [showStatement, setShowStatement] = useState(false);
+
   const d = deals.find((x) => x.id === dealId) || null;
   const open = !!d;
   const c = d ? clients.find((x) => x.id === d.client_id) : null;
@@ -49,6 +52,14 @@ export default function Drawer({
             value={d?.name || ""}
             onChange={(e) => d && updateDeal(d.id, { name: e.target.value }, true)}
           />
+          <button
+            className="stmt-btn"
+            onClick={() => setShowStatement(true)}
+            disabled={!d}
+            title="거래명세서 생성"
+          >
+            거래명세서
+          </button>
           <button className="x" onClick={onClose}>
             ×
           </button>
@@ -104,6 +115,26 @@ export default function Drawer({
                           placeholder="이메일"
                           onChange={(e) =>
                             updateClient(c.id, { contact_email: e.target.value }, true)
+                          }
+                        />
+                      </div>
+                      <div className="fld">
+                        <label>사업자등록번호</label>
+                        <input
+                          value={c.biz_reg_no || ""}
+                          placeholder="000-00-00000"
+                          onChange={(e) =>
+                            updateClient(c.id, { biz_reg_no: e.target.value }, true)
+                          }
+                        />
+                      </div>
+                      <div className="fld">
+                        <label>세금계산서 발행 메일</label>
+                        <input
+                          value={c.tax_email || ""}
+                          placeholder="tax@company.com"
+                          onChange={(e) =>
+                            updateClient(c.id, { tax_email: e.target.value }, true)
                           }
                         />
                       </div>
@@ -169,12 +200,8 @@ export default function Drawer({
                     />
                   </div>
                   <div className="fld">
-                    <label>분기</label>
-                    <input
-                      list="quarterList"
-                      value={d.quarter || ""}
-                      onChange={(e) => updateDeal(d.id, { quarter: e.target.value }, true)}
-                    />
+                    <label>분기 (기간 시작일 자동)</label>
+                    <input value={d.quarter || "—"} readOnly />
                   </div>
                   <div className="fld">
                     <label>금액 (VAT 제외)</label>
@@ -188,9 +215,10 @@ export default function Drawer({
                     <input
                       type="date"
                       value={d.period_start || ""}
-                      onChange={(e) =>
-                        updateDeal(d.id, { period_start: e.target.value || null })
-                      }
+                      onChange={(e) => {
+                        const v = e.target.value || null;
+                        updateDeal(d.id, { period_start: v, quarter: quarterOf(v) });
+                      }}
                     />
                   </div>
                   <div className="fld">
@@ -278,6 +306,9 @@ export default function Drawer({
           )}
         </div>
       </aside>
+      {d && showStatement && (
+        <StatementModal deal={d} onClose={() => setShowStatement(false)} />
+      )}
     </>
   );
 }

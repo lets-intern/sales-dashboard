@@ -135,6 +135,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       contact_person: "",
       contact_email: "",
       contact_phone: "",
+      biz_reg_no: "",
+      tax_email: "",
       notes: "",
     };
     setClients((prev) => [row, ...prev]);
@@ -159,6 +161,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       period_start: null,
       period_end: null,
       comm_notes: "",
+      statement: null,
     };
     setDeals((prev) => [row, ...prev]);
     const { error } = await supabase.from("deals").insert(row);

@@ -15,7 +15,7 @@ import {
   TYPE_TAG,
   TYPES,
 } from "@/lib/constants";
-import { clientName } from "@/lib/utils";
+import { clientName, quarterOf } from "@/lib/utils";
 
 export default function DealsView({
   search,
@@ -181,12 +181,9 @@ export default function DealsView({
                         </select>
                       </td>
                       <td className="q-cell">
-                        <span className="qtag">{d.quarter || ""}</span>
-                        <input
-                          list="quarterList"
-                          value={d.quarter || ""}
-                          onChange={(e) => updateDeal(d.id, { quarter: e.target.value }, true)}
-                        />
+                        <span className="qtag" title="기간 시작일 기준 자동 표기">
+                          {d.quarter || "—"}
+                        </span>
                       </td>
                       <td className="tag-cell">
                         <span className="tag" style={{ background: tg[0], color: tg[1] }}>
@@ -278,9 +275,10 @@ export default function DealsView({
                             className="cell-date"
                             type="date"
                             value={d.period_start || ""}
-                            onChange={(e) =>
-                              updateDeal(d.id, { period_start: e.target.value || null })
-                            }
+                            onChange={(e) => {
+                              const v = e.target.value || null;
+                              updateDeal(d.id, { period_start: v, quarter: quarterOf(v) });
+                            }}
                           />
                           <span className="arr">→</span>
                           <input

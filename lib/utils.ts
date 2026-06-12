@@ -54,6 +54,20 @@ export function currentQuarter(): string {
   return d.getFullYear() + "-" + (Math.floor(d.getMonth() / 3) + 1) + "Q";
 }
 
+// 기간 시작일(YYYY-MM-DD) → "YYYY-nQ" (예: 2026-2Q)
+export function quarterOf(s: string | null | undefined): string {
+  if (!s) return "";
+  const d = new Date(s + "T00:00");
+  if (isNaN(d.getTime())) return "";
+  return d.getFullYear() + "-" + (Math.floor(d.getMonth() / 3) + 1) + "Q";
+}
+
+// YYYY-MM-DD → YYMMDD (거래명세서 거래일 표기)
+export function yymmdd(s: string | null | undefined): string {
+  if (!s) return "";
+  return s.replace(/-/g, "").slice(2);
+}
+
 export function quarterList(): string[] {
   const out: string[] = [];
   for (let y = 2025; y <= 2026; y++)

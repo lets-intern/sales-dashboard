@@ -7,6 +7,8 @@ create table if not exists public.clients (
   contact_person text not null default '',
   contact_email text not null default '',
   contact_phone text not null default '',
+  biz_reg_no text not null default '',
+  tax_email text not null default '',
   notes text not null default '',
   created_at timestamptz not null default now()
 );
@@ -26,6 +28,7 @@ create table if not exists public.deals (
   period_start date,
   period_end date,
   comm_notes text not null default '',
+  statement jsonb,
   created_at timestamptz not null default now()
 );
 

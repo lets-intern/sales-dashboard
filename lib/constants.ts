@@ -36,6 +36,16 @@ export const OWNERS = [
 ];
 export const INVOICE_STATUS = ["예정", "완료", "카드 결제"];
 
+// 거래명세서 공급자 정보 (아이엔지 / 렛츠커리어)
+export const SUPPLIER = {
+  reg_no: "871-11-02629",
+  company: "아이엔지",
+  ceo: "송다예",
+  biz_type: "정보통신업",
+  biz_item: "데이터베이스 및 온라인 정보 제공업",
+  contact: "official@letscareer.co.kr",
+};
+
 export const STATUS_COLOR: Record<string, string> = {
   "시작 전": "gray",
   "논의 진행 중": "amber",
