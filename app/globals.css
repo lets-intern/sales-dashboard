@@ -384,7 +384,7 @@ table {
   width: 100%;
 }
 #dealsTable {
-  min-width: 1420px;
+  min-width: 1540px;
 }
 #itemsTable {
   min-width: 1040px;
@@ -539,6 +539,7 @@ td.name-cell .cell {
   font-size: 12px;
   padding: 3px 8px;
   cursor: pointer;
+  white-space: nowrap;
 }
 .pill::before {
   content: "";

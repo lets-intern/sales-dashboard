@@ -125,10 +125,10 @@ export default function DealsView({
                 <SortTh label="분기" sortKey="quarter" sort={sort} onToggle={toggle} width={96} />
                 <SortTh label="유형" sortKey="type" sort={sort} onToggle={toggle} width={104} />
                 <SortTh label="구분" sortKey="segment" sort={sort} onToggle={toggle} width={64} />
-                <SortTh label="이름" sortKey="name" sort={sort} onToggle={toggle} width={220} />
-                <SortTh label="고객사" sortKey="client" sort={sort} onToggle={toggle} width={200} />
-                <SortTh label="상태" sortKey="status" sort={sort} onToggle={toggle} width={128} />
+                <SortTh label="이름" sortKey="name" sort={sort} onToggle={toggle} width={320} />
                 <SortTh label="금액 (VAT 제외가)" sortKey="amount" sort={sort} onToggle={toggle} width={150} />
+                <SortTh label="고객사" sortKey="client" sort={sort} onToggle={toggle} width={200} />
+                <SortTh label="상태" sortKey="status" sort={sort} onToggle={toggle} width={140} />
                 <SortTh label="기간" sortKey="period" sort={sort} onToggle={toggle} width={200} />
                 <SortTh label="담당자" sortKey="owner" sort={sort} onToggle={toggle} width={104} />
                 <th style={{ width: 110 }}>상세</th>
@@ -223,6 +223,13 @@ export default function DealsView({
                           onChange={(e) => updateDeal(d.id, { name: e.target.value }, true)}
                         />
                       </td>
+                      <td>
+                        <AmountInput
+                          className="cell num"
+                          value={d.amount}
+                          onChange={(n) => updateDeal(d.id, { amount: n }, true)}
+                        />
+                      </td>
                       <td className="client-cell">
                         {c ? (
                           <>
@@ -261,13 +268,6 @@ export default function DealsView({
                             </select>
                           </span>
                         </div>
-                      </td>
-                      <td>
-                        <AmountInput
-                          className="cell num"
-                          value={d.amount}
-                          onChange={(n) => updateDeal(d.id, { amount: n }, true)}
-                        />
                       </td>
                       <td>
                         <div className="period">

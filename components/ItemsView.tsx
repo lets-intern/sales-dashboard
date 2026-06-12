@@ -5,7 +5,7 @@ import { useStore } from "./store";
 import CalendarView from "./CalendarView";
 import { ChevronIcon, PlusIcon, TrashIcon } from "./icons";
 import { SortTh, sortRows, useSort } from "./sortable";
-import { CHANNELS, ITEM_STATUS, OWNERS, STATUS_COLOR } from "@/lib/constants";
+import { CHANNELS, HIDDEN_CHANNELS, ITEM_STATUS, OWNERS, STATUS_COLOR } from "@/lib/constants";
 import { itemName } from "@/lib/utils";
 
 export default function ItemsView({
@@ -24,7 +24,10 @@ export default function ItemsView({
   const { sort, toggle } = useSort();
 
   const channels = useMemo(
-    () => [...new Set([...CHANNELS, ...items.map((i) => i.channel).filter(Boolean)])],
+    () =>
+      [...new Set([...CHANNELS, ...items.map((i) => i.channel).filter(Boolean)])].filter(
+        (c) => !HIDDEN_CHANNELS.includes(c)
+      ),
     [items]
   );
 
@@ -52,7 +55,7 @@ export default function ItemsView({
   return (
     <section className="view active">
       <div className="view-head">
-        <h1>항목 관리</h1>
+        <h1>광고 항목 관리</h1>
         <span className="count">
           {mode === "list" ? `${rows.length}건` : "캘린더"}
         </span>

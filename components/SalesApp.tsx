@@ -10,14 +10,14 @@ import Drawer from "./Drawer";
 import ItemDrawer from "./ItemDrawer";
 import { LogoutIcon, SearchIcon } from "./icons";
 import { fmtWon, quarterList } from "@/lib/utils";
-import { CHANNELS, OWNERS } from "@/lib/constants";
+import { CHANNELS, HIDDEN_CHANNELS, OWNERS } from "@/lib/constants";
 
 type View = "deals" | "items" | "clients" | "calendar";
 const TABS: { id: View; label: string }[] = [
   { id: "deals", label: "세일즈 대시보드" },
-  { id: "items", label: "항목 관리" },
-  { id: "clients", label: "고객사" },
-  { id: "calendar", label: "캘린더" },
+  { id: "clients", label: "고객사 관리" },
+  { id: "items", label: "광고 항목 관리" },
+  { id: "calendar", label: "광고 캘린더" },
 ];
 
 function AppInner() {
@@ -42,8 +42,8 @@ function AppInner() {
       if (["INPUT", "SELECT", "TEXTAREA"].includes(tag)) return;
       const m: Record<string, View> = {
         "1": "deals",
-        "2": "items",
-        "3": "clients",
+        "2": "clients",
+        "3": "items",
         "4": "calendar",
       };
       if (m[e.key]) setView(m[e.key]);
@@ -65,7 +65,10 @@ function AppInner() {
     [deals]
   );
   const channels = useMemo(
-    () => [...new Set([...CHANNELS, ...items.map((i) => i.channel)])].filter(Boolean),
+    () =>
+      [...new Set([...CHANNELS, ...items.map((i) => i.channel)])]
+        .filter(Boolean)
+        .filter((c) => !HIDDEN_CHANNELS.includes(c)),
     [items]
   );
 
