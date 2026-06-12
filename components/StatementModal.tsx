@@ -34,6 +34,21 @@ function buildDefault(
 
 const won = (n: number) => (Number(n) || 0).toLocaleString("ko-KR");
 
+// public/stamp.png 이 있으면 도장 이미지를, 없으면 빨간 박스로 대체
+function StampMark() {
+  const [failed, setFailed] = useState(false);
+  if (failed) return <div className="stmt-stamp">아이엔지</div>;
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      className="stmt-stamp-img"
+      src="/stamp.png"
+      alt="아이엔지 도장"
+      onError={() => setFailed(true)}
+    />
+  );
+}
+
 export default function StatementModal({
   deal,
   onClose,
@@ -134,7 +149,7 @@ export default function StatementModal({
                 <span className="lab">담당자 ▶</span>
                 <span className="val">{deal.owner || "—"}</span>
               </div>
-              <div className="stmt-stamp">아이엔지</div>
+              <StampMark />
             </div>
 
             <div className="stmt-supplier">

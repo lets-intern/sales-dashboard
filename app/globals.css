@@ -1310,6 +1310,15 @@ td.actions {
   transform: rotate(-4deg);
   opacity: 0.9;
 }
+.stmt-stamp-img {
+  position: absolute;
+  top: 44px;
+  left: 232px;
+  width: 78px;
+  height: 78px;
+  object-fit: contain;
+  transform: rotate(-4deg);
+}
 .stmt-supplier {
   display: flex;
   border: 1.5px solid #1a1d24;
