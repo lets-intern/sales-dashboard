@@ -30,7 +30,7 @@ export default function DealsView({
   const [fStatus, setFStatus] = useState("");
   const [fQuarter, setFQuarter] = useState("");
   const [fOwner, setFOwner] = useState("");
-  const { sort, toggle } = useSort();
+  const { sort, toggle } = useSort({ key: "period", dir: "desc" });
 
   const owners = useMemo(
     () => [...new Set(deals.map((d) => d.owner).filter(Boolean))],
@@ -125,7 +125,7 @@ export default function DealsView({
                 <SortTh label="분기" sortKey="quarter" sort={sort} onToggle={toggle} width={96} />
                 <SortTh label="유형" sortKey="type" sort={sort} onToggle={toggle} width={104} />
                 <SortTh label="구분" sortKey="segment" sort={sort} onToggle={toggle} width={64} />
-                <SortTh label="이름" sortKey="name" sort={sort} onToggle={toggle} width={320} />
+                <SortTh label="이름" sortKey="name" sort={sort} onToggle={toggle} width={400} />
                 <SortTh label="금액 (VAT 제외가)" sortKey="amount" sort={sort} onToggle={toggle} width={150} />
                 <SortTh label="고객사" sortKey="client" sort={sort} onToggle={toggle} width={200} />
                 <SortTh label="상태" sortKey="status" sort={sort} onToggle={toggle} width={140} />
