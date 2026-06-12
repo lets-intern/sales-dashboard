@@ -10,15 +10,31 @@ export const DEAL_STATUS = [
 ];
 export const ITEM_STATUS = ["시작 전", "진행 중", "완료"];
 export const CHANNELS = [
-  "인스타 피드",
-  "인스타 스토리",
-  "쥬디 QNA 오픈채팅방",
-  "오공고 오픈채팅방",
-  "MMS 광고",
+  "인스타 @official 피드",
+  "인스타 @official 스토리",
+  "인스타 @job 피드",
+  "인스타 @job 스토리",
+  "오픈채팅방 #쥬디QNA",
+  "오픈채팅방 #오공고",
   "카카오 채널 DM",
+  "주간 뉴스레터",
   "웹사이트 상단 배너",
-  "주간뉴스레터",
+  "웹사이트 하단 배너",
+  "웹사이트 팝업창",
+  "MMS 광고",
 ];
+export const OWNERS = [
+  "황준호",
+  "송다예",
+  "신수현",
+  "박재영",
+  "최수현",
+  "임호정",
+  "김학배",
+  "김현조",
+  "김수정",
+];
+export const INVOICE_STATUS = ["예정", "완료", "카드 결제"];
 
 export const STATUS_COLOR: Record<string, string> = {
   "시작 전": "gray",
@@ -39,4 +55,10 @@ export const TYPE_TAG: Record<string, [string, string]> = {
 export const SEG_TAG: Record<string, [string, string]> = {
   B2B: ["#fde6e3", "#c0392b"],
   B2U: ["#efe6fb", "#7a3fc4"],
+};
+
+export const INVOICE_TAG: Record<string, [string, string]> = {
+  예정: ["#f1f3f5", "#495057"],
+  완료: ["#e3f9e5", "#2b8a3e"],
+  "카드 결제": ["#e7f5ff", "#1971c2"],
 };

@@ -9,8 +9,10 @@ const DOWS = ["월", "화", "수", "목", "금", "토", "일"];
 
 export default function CalendarView({
   onOpenDrawer,
+  embedded = false,
 }: {
   onOpenDrawer: (id: string) => void;
+  embedded?: boolean;
 }) {
   const { clients, deals, items } = useStore();
   const [calStart, setCalStart] = useState(() => mondayOf(new Date()));
@@ -30,26 +32,23 @@ export default function CalendarView({
     addDays(calStart, 6).getMonth() + 1
   }월 ${addDays(calStart, 6).getDate()}일`;
 
-  return (
-    <section className="view active">
-      <div className="view-head">
-        <h1>캘린더</h1>
-        <span className="count">항목에서 자동 생성</span>
-        <div className="spacer" />
-        <div className="cal-nav">
-          <button title="이전 주" onClick={() => setCalStart(addDays(calStart, -7))}>
-            ‹
-          </button>
-          <button className="today-btn" onClick={() => setCalStart(mondayOf(new Date()))}>
-            이번 주
-          </button>
-          <button title="다음 주" onClick={() => setCalStart(addDays(calStart, 7))}>
-            ›
-          </button>
-          <span className="cal-range">{rangeLabel}</span>
-        </div>
-      </div>
-      <div className="card">
+  const nav = (
+    <div className="cal-nav">
+      <button title="이전 주" onClick={() => setCalStart(addDays(calStart, -7))}>
+        ‹
+      </button>
+      <button className="today-btn" onClick={() => setCalStart(mondayOf(new Date()))}>
+        이번 주
+      </button>
+      <button title="다음 주" onClick={() => setCalStart(addDays(calStart, 7))}>
+        ›
+      </button>
+      <span className="cal-range">{rangeLabel}</span>
+    </div>
+  );
+
+  const board = (
+    <div className="card">
         <div className="tbl-scroll">
           <div
             className="cal-grid"
@@ -86,6 +85,28 @@ export default function CalendarView({
           </div>
         </div>
       </div>
+  );
+
+  if (embedded) {
+    return (
+      <>
+        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
+          {nav}
+        </div>
+        {board}
+      </>
+    );
+  }
+
+  return (
+    <section className="view active">
+      <div className="view-head">
+        <h1>캘린더</h1>
+        <span className="count">항목에서 자동 생성</span>
+        <div className="spacer" />
+        {nav}
+      </div>
+      {board}
     </section>
   );
 }

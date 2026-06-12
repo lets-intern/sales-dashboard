@@ -56,7 +56,7 @@ export function currentQuarter(): string {
 
 export function quarterList(): string[] {
   const out: string[] = [];
-  for (let y = 2025; y <= 2027; y++)
+  for (let y = 2025; y <= 2026; y++)
     for (let q = 1; q <= 4; q++) out.push(y + "-" + q + "Q");
   return out;
 }
@@ -72,6 +72,6 @@ export function itemName(it: Item, deals: Deal[], clients: Client[]): string {
   const parts: string[] = [];
   if (cn) parts.push("[" + cn + "]");
   if (it.date) parts.push(mdy(it.date));
-  if (it.channel) parts.push("+" + it.channel);
+  if (it.channel) parts.push(it.channel);
   return parts.join(" ") || "(미입력)";
 }

@@ -4,8 +4,11 @@ import { useMemo, useState } from "react";
 import { useStore } from "./store";
 import AmountInput from "./AmountInput";
 import { ChevronIcon, PlusIcon, TrashIcon } from "./icons";
+import { SortTh, sortRows, useSort } from "./sortable";
 import {
   DEAL_STATUS,
+  INVOICE_STATUS,
+  INVOICE_TAG,
   SEG_TAG,
   SEGMENTS,
   STATUS_COLOR,
@@ -21,11 +24,13 @@ export default function DealsView({
   search: string;
   onOpenDrawer: (id: string) => void;
 }) {
-  const { clients, deals, items, updateDeal, addDeal, deleteDeal } = useStore();
+  const { clients, deals, items, updateDeal, addDeal, addClient, deleteDeal } =
+    useStore();
   const [fType, setFType] = useState("");
   const [fStatus, setFStatus] = useState("");
   const [fQuarter, setFQuarter] = useState("");
   const [fOwner, setFOwner] = useState("");
+  const { sort, toggle } = useSort();
 
   const owners = useMemo(
     () => [...new Set(deals.map((d) => d.owner).filter(Boolean))],
@@ -36,7 +41,7 @@ export default function DealsView({
     [deals]
   );
 
-  const rows = deals.filter((d) => {
+  const filtered = deals.filter((d) => {
     if (fType && d.type !== fType) return false;
     if (fStatus && d.status !== fStatus) return false;
     if (fQuarter && d.quarter !== fQuarter) return false;
@@ -48,6 +53,26 @@ export default function DealsView({
       return false;
     return true;
   });
+
+  const rows = sortRows(filtered, sort, (d, key) => {
+    switch (key) {
+      case "client":
+        return clientName(clients, d.client_id);
+      case "period":
+        return d.period_start;
+      default:
+        return (d as unknown as Record<string, string | number | boolean | null>)[key];
+    }
+  });
+
+  async function handleClientSelect(dealId: string, value: string) {
+    if (value === "__new__") {
+      const id = await addClient();
+      updateDeal(dealId, { client_id: id });
+    } else {
+      updateDeal(dealId, { client_id: value || null });
+    }
+  }
 
   return (
     <section className="view active">
@@ -95,16 +120,17 @@ export default function DealsView({
           <table id="dealsTable">
             <thead>
               <tr>
-                <th style={{ width: 54 }}>입금</th>
-                <th style={{ width: 96 }}>분기</th>
-                <th style={{ width: 104 }}>유형</th>
-                <th style={{ width: 64 }}>구분</th>
-                <th style={{ width: 220 }}>이름</th>
-                <th style={{ width: 200 }}>고객사</th>
-                <th style={{ width: 128 }}>상태</th>
-                <th style={{ width: 130 }}>금액</th>
-                <th style={{ width: 200 }}>기간</th>
-                <th style={{ width: 104 }}>담당자</th>
+                <SortTh label="결제 여부" sortKey="paid" sort={sort} onToggle={toggle} width={80} />
+                <SortTh label="계산서 발행" sortKey="invoice_status" sort={sort} onToggle={toggle} width={120} />
+                <SortTh label="분기" sortKey="quarter" sort={sort} onToggle={toggle} width={96} />
+                <SortTh label="유형" sortKey="type" sort={sort} onToggle={toggle} width={104} />
+                <SortTh label="구분" sortKey="segment" sort={sort} onToggle={toggle} width={64} />
+                <SortTh label="이름" sortKey="name" sort={sort} onToggle={toggle} width={220} />
+                <SortTh label="고객사" sortKey="client" sort={sort} onToggle={toggle} width={200} />
+                <SortTh label="상태" sortKey="status" sort={sort} onToggle={toggle} width={128} />
+                <SortTh label="금액 (VAT 제외가)" sortKey="amount" sort={sort} onToggle={toggle} width={150} />
+                <SortTh label="기간" sortKey="period" sort={sort} onToggle={toggle} width={200} />
+                <SortTh label="담당자" sortKey="owner" sort={sort} onToggle={toggle} width={104} />
                 <th style={{ width: 110 }}>상세</th>
                 <th style={{ width: 40 }}></th>
               </tr>
@@ -112,7 +138,7 @@ export default function DealsView({
             <tbody>
               {rows.length === 0 ? (
                 <tr>
-                  <td colSpan={12}>
+                  <td colSpan={13}>
                     <div className="empty">
                       <b>표시할 세일즈가 없어요</b>
                       필터를 바꾸거나 새 세일즈를 추가하세요.
@@ -124,6 +150,7 @@ export default function DealsView({
                   const tg = TYPE_TAG[d.type] || ["var(--s-gray-bg)", "var(--s-gray-fg)"];
                   const sg = SEG_TAG[d.segment] || ["var(--s-gray-bg)", "var(--s-gray-fg)"];
                   const sc = STATUS_COLOR[d.status] || "gray";
+                  const ig = INVOICE_TAG[d.invoice_status] || ["var(--s-gray-bg)", "var(--s-gray-fg)"];
                   const c = clients.find((x) => x.id === d.client_id);
                   const nItems = items.filter((x) => x.deal_id === d.id).length;
                   return (
@@ -135,6 +162,23 @@ export default function DealsView({
                           checked={d.paid}
                           onChange={(e) => updateDeal(d.id, { paid: e.target.checked })}
                         />
+                      </td>
+                      <td className="tag-cell">
+                        <span className="tag" style={{ background: ig[0], color: ig[1] }}>
+                          {d.invoice_status}
+                        </span>
+                        <select
+                          value={d.invoice_status}
+                          onChange={(e) =>
+                            updateDeal(d.id, { invoice_status: e.target.value })
+                          }
+                        >
+                          {INVOICE_STATUS.map((v) => (
+                            <option key={v} value={v}>
+                              {v}
+                            </option>
+                          ))}
+                        </select>
                       </td>
                       <td className="q-cell">
                         <span className="qtag">{d.quarter || ""}</span>
@@ -193,16 +237,15 @@ export default function DealsView({
                         )}
                         <select
                           value={d.client_id || ""}
-                          onChange={(e) =>
-                            updateDeal(d.id, { client_id: e.target.value || null })
-                          }
+                          onChange={(e) => handleClientSelect(d.id, e.target.value)}
                         >
                           <option value="">— 미연결 —</option>
                           {clients.map((x) => (
                             <option key={x.id} value={x.id}>
-                              {x.name}
+                              {x.name || "(이름 없음)"}
                             </option>
                           ))}
+                          <option value="__new__">+ 새 고객사 추가</option>
                         </select>
                       </td>
                       <td>

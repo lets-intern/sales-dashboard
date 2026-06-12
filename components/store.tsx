@@ -154,6 +154,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       amount: 0,
       owner: "",
       paid: false,
+      invoice_status: "예정",
       quarter: currentQuarter(),
       period_start: null,
       period_end: null,
@@ -173,6 +174,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         channel: "",
         date: ymd(new Date()),
         status: "시작 전",
+        owner: "",
+        notes: "",
       };
       setItems((prev) => [row, ...prev]);
       const { error } = await supabase.from("items").insert(row);

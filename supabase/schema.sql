@@ -21,6 +21,7 @@ create table if not exists public.deals (
   amount bigint not null default 0,
   owner text not null default '',
   paid boolean not null default false,
+  invoice_status text not null default '예정',
   quarter text not null default '',
   period_start date,
   period_end date,
@@ -34,6 +35,8 @@ create table if not exists public.items (
   channel text not null default '',
   date date,
   status text not null default '시작 전',
+  owner text not null default '',
+  notes text not null default '',
   created_at timestamptz not null default now()
 );
 

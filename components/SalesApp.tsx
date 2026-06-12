@@ -7,9 +7,10 @@ import ItemsView from "./ItemsView";
 import ClientsView from "./ClientsView";
 import CalendarView from "./CalendarView";
 import Drawer from "./Drawer";
+import ItemDrawer from "./ItemDrawer";
 import { LogoutIcon, SearchIcon } from "./icons";
 import { fmtWon, quarterList } from "@/lib/utils";
-import { CHANNELS } from "@/lib/constants";
+import { CHANNELS, OWNERS } from "@/lib/constants";
 
 type View = "deals" | "items" | "clients" | "calendar";
 const TABS: { id: View; label: string }[] = [
@@ -24,6 +25,16 @@ function AppInner() {
   const [view, setView] = useState<View>("deals");
   const [search, setSearch] = useState("");
   const [openDealId, setOpenDealId] = useState<string | null>(null);
+  const [openItemId, setOpenItemId] = useState<string | null>(null);
+
+  const openDeal = (id: string) => {
+    setOpenItemId(null);
+    setOpenDealId(id);
+  };
+  const openItem = (id: string) => {
+    setOpenDealId(null);
+    setOpenItemId(id);
+  };
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -50,7 +61,7 @@ function AppInner() {
   );
 
   const owners = useMemo(
-    () => [...new Set(deals.map((d) => d.owner).filter(Boolean))],
+    () => [...new Set([...OWNERS, ...deals.map((d) => d.owner)])].filter(Boolean),
     [deals]
   );
   const channels = useMemo(
@@ -119,14 +130,21 @@ function AppInner() {
           </div>
         )}
         {view === "deals" && (
-          <DealsView search={s} onOpenDrawer={setOpenDealId} />
+          <DealsView search={s} onOpenDrawer={openDeal} />
         )}
-        {view === "items" && <ItemsView search={s} />}
+        {view === "items" && (
+          <ItemsView search={s} onOpenDeal={openDeal} onOpenItem={openItem} />
+        )}
         {view === "clients" && <ClientsView search={s} />}
-        {view === "calendar" && <CalendarView onOpenDrawer={setOpenDealId} />}
+        {view === "calendar" && <CalendarView onOpenDrawer={openDeal} />}
       </main>
 
       <Drawer dealId={openDealId} onClose={() => setOpenDealId(null)} />
+      <ItemDrawer
+        itemId={openItemId}
+        onClose={() => setOpenItemId(null)}
+        onOpenDeal={openDeal}
+      />
 
       <div id="toast" className={toastMsg ? "show" : ""}>
         {toastMsg}

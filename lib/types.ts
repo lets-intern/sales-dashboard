@@ -17,6 +17,7 @@ export type Deal = {
   amount: number;
   owner: string;
   paid: boolean;
+  invoice_status: string;
   quarter: string;
   period_start: string | null;
   period_end: string | null;
@@ -29,6 +30,8 @@ export type Item = {
   channel: string;
   date: string | null;
   status: string;
+  owner: string;
+  notes: string;
 };
 
 export type TableName = "clients" | "deals" | "items";

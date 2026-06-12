@@ -2,6 +2,7 @@
 
 import { useStore } from "./store";
 import { PlusIcon, TrashIcon } from "./icons";
+import { fmtWon } from "@/lib/utils";
 
 export default function ClientsView({ search }: { search: string }) {
   const { clients, deals, updateClient, addClient, deleteClient } = useStore();
@@ -37,13 +38,14 @@ export default function ClientsView({ search }: { search: string }) {
                 <th style={{ width: 150 }}>연락처</th>
                 <th>메모</th>
                 <th style={{ width: 80 }}>세일즈</th>
+                <th style={{ width: 140 }}>매출 합계</th>
                 <th style={{ width: 40 }}></th>
               </tr>
             </thead>
             <tbody>
               {rows.length === 0 ? (
                 <tr>
-                  <td colSpan={7}>
+                  <td colSpan={8}>
                     <div className="empty">
                       <b>등록된 고객사가 없어요</b>
                       고객사를 추가하면 세일즈에서 연결할 수 있어요.
@@ -52,7 +54,11 @@ export default function ClientsView({ search }: { search: string }) {
                 </tr>
               ) : (
                 rows.map((c) => {
-                  const n = deals.filter((d) => d.client_id === c.id).length;
+                  const cDeals = deals.filter((d) => d.client_id === c.id);
+                  const n = cDeals.length;
+                  const revenue = cDeals
+                    .filter((d) => d.status === "사업 진행 중" || d.status === "완료")
+                    .reduce((a, d) => a + (Number(d.amount) || 0), 0);
                   return (
                     <tr key={c.id}>
                       {fields.map((f) => (
@@ -75,6 +81,16 @@ export default function ClientsView({ search }: { search: string }) {
                         }}
                       >
                         {n}건
+                      </td>
+                      <td
+                        style={{
+                          padding: "9px 12px",
+                          color: "var(--ink-1)",
+                          fontWeight: 600,
+                          fontVariantNumeric: "tabular-nums",
+                        }}
+                      >
+                        {fmtWon(revenue)}
                       </td>
                       <td className="actions">
                         <button
