@@ -14,6 +14,7 @@ export const CHANNELS = [
   "인스타 @official 스토리",
   "인스타 @job 피드",
   "인스타 @job 스토리",
+  "오픈채팅방 #쥬디QNA",
   "오픈채팅방 #오공고",
   "카카오 채널 DM",
   "주간 뉴스레터",
@@ -62,7 +63,7 @@ export const TYPE_TAG: Record<string, [string, string]> = {
 };
 
 // 더 이상 사용하지 않는 채널 (드롭다운에서 숨김 처리)
-export const HIDDEN_CHANNELS = ["쥬디 QNA 오픈채팅방", "오픈채팅방 #쥬디QNA"];
+export const HIDDEN_CHANNELS: string[] = [];
 
 export const SEG_TAG: Record<string, [string, string]> = {
   B2B: ["#fde6e3", "#c0392b"],

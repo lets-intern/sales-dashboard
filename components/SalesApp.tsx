@@ -79,8 +79,7 @@ function AppInner() {
       <div className="topbar">
         <div className="brand">
           <span className="mark" />
-          <b>세일즈 운영</b>
-          <span>렛츠커리어</span>
+          <b>렛츠커리어 세일즈 어드민</b>
         </div>
         <div className="tabs">
           {TABS.map((t) => (
