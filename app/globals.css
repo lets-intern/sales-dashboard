@@ -1485,3 +1485,76 @@ td.actions {
     display: block;
   }
 }
+
+/* ===== 로그인(비밀번호 게이트) ===== */
+.login-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--bg, #f6f7f9);
+}
+.login-card {
+  width: 100%;
+  max-width: 360px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 32px 28px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.login-brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 16px;
+  color: var(--ink);
+}
+.login-brand .mark {
+  width: 16px;
+  height: 16px;
+  border-radius: 6px;
+  background: var(--accent);
+  display: inline-block;
+}
+.login-sub {
+  margin: 0;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+.login-input {
+  width: 100%;
+  padding: 11px 13px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.login-input:focus {
+  border-color: var(--accent);
+}
+.login-err {
+  font-size: 12.5px;
+  color: #d6246e;
+}
+.login-btn {
+  width: 100%;
+  padding: 11px 13px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.login-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
