@@ -2,16 +2,40 @@
 
 import { useStore } from "./store";
 import { PlusIcon, TrashIcon } from "./icons";
+import { SortTh, sortRows, useSort } from "./sortable";
 import { fmtWon } from "@/lib/utils";
 
 export default function ClientsView({ search }: { search: string }) {
   const { clients, deals, updateClient, addClient, deleteClient } = useStore();
+  const { sort, toggle } = useSort();
 
-  const rows = clients.filter(
+  const dealsCount = (clientId: string) =>
+    deals.filter((d) => d.client_id === clientId).length;
+  const dealsRevenue = (clientId: string) =>
+    deals
+      .filter(
+        (d) =>
+          d.client_id === clientId &&
+          (d.status === "사업 진행 중" || d.status === "완료")
+      )
+      .reduce((a, d) => a + (Number(d.amount) || 0), 0);
+
+  const filtered = clients.filter(
     (c) =>
       !search ||
       ((c.name || "") + (c.contact_person || "")).toLowerCase().includes(search)
   );
+
+  const rows = sortRows(filtered, sort, (c, key) => {
+    switch (key) {
+      case "deals_count":
+        return dealsCount(c.id);
+      case "revenue":
+        return dealsRevenue(c.id);
+      default:
+        return (c as unknown as Record<string, string | number | boolean | null>)[key];
+    }
+  });
 
   const fields: {
     key:
@@ -45,15 +69,15 @@ export default function ClientsView({ search }: { search: string }) {
           <table id="clientsTable">
             <thead>
               <tr>
-                <th style={{ width: 220 }}>고객사명</th>
-                <th style={{ width: 200 }}>담당자</th>
-                <th style={{ width: 200 }}>이메일</th>
-                <th style={{ width: 130 }}>연락처</th>
-                <th style={{ width: 140 }}>사업자등록번호</th>
-                <th style={{ width: 200 }}>세금계산서 발행 메일</th>
-                <th>메모</th>
-                <th style={{ width: 80 }}>세일즈</th>
-                <th style={{ width: 140 }}>매출 합계</th>
+                <SortTh label="고객사명" sortKey="name" sort={sort} onToggle={toggle} width={220} />
+                <SortTh label="담당자" sortKey="contact_person" sort={sort} onToggle={toggle} width={200} />
+                <SortTh label="이메일" sortKey="contact_email" sort={sort} onToggle={toggle} width={200} />
+                <SortTh label="연락처" sortKey="contact_phone" sort={sort} onToggle={toggle} width={130} />
+                <SortTh label="사업자등록번호" sortKey="biz_reg_no" sort={sort} onToggle={toggle} width={140} />
+                <SortTh label="세금계산서 발행 메일" sortKey="tax_email" sort={sort} onToggle={toggle} width={200} />
+                <SortTh label="메모" sortKey="notes" sort={sort} onToggle={toggle} />
+                <SortTh label="세일즈" sortKey="deals_count" sort={sort} onToggle={toggle} width={80} />
+                <SortTh label="매출 합계" sortKey="revenue" sort={sort} onToggle={toggle} width={140} />
                 <th style={{ width: 40 }}></th>
               </tr>
             </thead>
