@@ -12,11 +12,13 @@ export default function CalendarView({
   embedded = false,
   weekStart,
   onWeekChange,
+  onDraftOpen,
 }: {
   onOpenDrawer: (id: string) => void;
   embedded?: boolean;
   weekStart?: Date;
   onWeekChange?: (d: Date) => void;
+  onDraftOpen?: (dealId: string) => void;
 }) {
   const { clients, deals, items, updateItem, addDeal, addItem } = useStore();
   const [internalStart, setInternalStart] = useState(() => mondayOf(new Date()));
@@ -89,6 +91,7 @@ export default function CalendarView({
                 deals={deals}
                 clients={clients}
                 onOpenDrawer={onOpenDrawer}
+                onDraftOpen={onDraftOpen}
                 updateItem={updateItem}
                 addDeal={addDeal}
                 addItem={addItem}
@@ -130,6 +133,7 @@ function CalRow({
   deals,
   clients,
   onOpenDrawer,
+  onDraftOpen,
   updateItem,
   addDeal,
   addItem,
@@ -140,6 +144,7 @@ function CalRow({
   deals: ReturnType<typeof useStore>["deals"];
   clients: ReturnType<typeof useStore>["clients"];
   onOpenDrawer: (id: string) => void;
+  onDraftOpen?: (dealId: string) => void;
   updateItem: ReturnType<typeof useStore>["updateItem"];
   addDeal: ReturnType<typeof useStore>["addDeal"];
   addItem: ReturnType<typeof useStore>["addItem"];
@@ -149,7 +154,8 @@ function CalRow({
     const dealId = await addDeal();
     const itemId = await addItem(dealId);
     updateItem(itemId, { channel, date: ds });
-    onOpenDrawer(dealId);
+    if (onDraftOpen) onDraftOpen(dealId);
+    else onOpenDrawer(dealId);
   }
   return (
     <>

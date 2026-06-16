@@ -22,18 +22,35 @@ const TABS: { id: View; label: string }[] = [
 ];
 
 function AppInner() {
-  const { clients, deals, items, loading, error, toastMsg } = useStore();
+  const { clients, deals, items, loading, error, toastMsg, deleteDeal } =
+    useStore();
   const [view, setView] = useState<View>("deals");
   const [search, setSearch] = useState("");
   const [openDealId, setOpenDealId] = useState<string | null>(null);
   const [openItemId, setOpenItemId] = useState<string | null>(null);
   const [openClientId, setOpenClientId] = useState<string | null>(null);
   const [calWeek, setCalWeek] = useState(() => mondayOf(new Date()));
+  // 캘린더 빈칸에서 즉석 생성된 임시(draft) 세일즈 — 닫을 때 저장 여부를 물어봄
+  const [draftDealId, setDraftDealId] = useState<string | null>(null);
 
   const openDeal = (id: string) => {
     setOpenItemId(null);
     setOpenClientId(null);
     setOpenDealId(id);
+  };
+  const openDraftDeal = (id: string) => {
+    setDraftDealId(id);
+    openDeal(id);
+  };
+  const closeDeal = () => {
+    if (openDealId && openDealId === draftDealId) {
+      const keep = window.confirm(
+        "생성한 항목을 저장하시겠습니까?\n\n[확인] 저장 · [취소] 삭제"
+      );
+      if (!keep) deleteDeal(openDealId);
+      setDraftDealId(null);
+    }
+    setOpenDealId(null);
   };
   const openItem = (id: string) => {
     setOpenDealId(null);
@@ -154,6 +171,7 @@ function AppInner() {
           <>
             <CalendarView
               onOpenDrawer={openDeal}
+              onDraftOpen={openDraftDeal}
               weekStart={calWeek}
               onWeekChange={setCalWeek}
             />
@@ -171,7 +189,7 @@ function AppInner() {
         )}
       </main>
 
-      <Drawer dealId={openDealId} onClose={() => setOpenDealId(null)} />
+      <Drawer dealId={openDealId} onClose={closeDeal} />
       <ItemDrawer
         itemId={openItemId}
         onClose={() => setOpenItemId(null)}
