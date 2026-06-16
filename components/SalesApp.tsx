@@ -10,7 +10,7 @@ import Drawer from "./Drawer";
 import ItemDrawer from "./ItemDrawer";
 import ClientDrawer from "./ClientDrawer";
 import { LogoutIcon, SearchIcon } from "./icons";
-import { fmtWon, quarterList } from "@/lib/utils";
+import { addDays, fmtWon, mondayOf, quarterList, ymd } from "@/lib/utils";
 import { CHANNELS, HIDDEN_CHANNELS, OWNERS } from "@/lib/constants";
 
 type View = "deals" | "items" | "clients" | "calendar";
@@ -28,6 +28,7 @@ function AppInner() {
   const [openDealId, setOpenDealId] = useState<string | null>(null);
   const [openItemId, setOpenItemId] = useState<string | null>(null);
   const [openClientId, setOpenClientId] = useState<string | null>(null);
+  const [calWeek, setCalWeek] = useState(() => mondayOf(new Date()));
 
   const openDeal = (id: string) => {
     setOpenItemId(null);
@@ -151,13 +152,19 @@ function AppInner() {
         )}
         {view === "calendar" && (
           <>
-            <CalendarView onOpenDrawer={openDeal} />
+            <CalendarView
+              onOpenDrawer={openDeal}
+              weekStart={calWeek}
+              onWeekChange={setCalWeek}
+            />
             <div style={{ marginTop: 18 }}>
               <ItemsView
                 search={s}
                 onOpenDeal={openDeal}
                 onOpenItem={openItem}
                 listOnly
+                dateFrom={ymd(calWeek)}
+                dateTo={ymd(addDays(calWeek, 6))}
               />
             </div>
           </>

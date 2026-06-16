@@ -10,12 +10,21 @@ const DOWS = ["월", "화", "수", "목", "금", "토", "일"];
 export default function CalendarView({
   onOpenDrawer,
   embedded = false,
+  weekStart,
+  onWeekChange,
 }: {
   onOpenDrawer: (id: string) => void;
   embedded?: boolean;
+  weekStart?: Date;
+  onWeekChange?: (d: Date) => void;
 }) {
   const { clients, deals, items, updateItem, addDeal, addItem } = useStore();
-  const [calStart, setCalStart] = useState(() => mondayOf(new Date()));
+  const [internalStart, setInternalStart] = useState(() => mondayOf(new Date()));
+  const calStart = weekStart ?? internalStart;
+  const setCalStart = (d: Date) => {
+    if (onWeekChange) onWeekChange(d);
+    else setInternalStart(d);
+  };
 
   const days = Array.from({ length: 7 }, (_, i) => addDays(calStart, i));
   const today = new Date();

@@ -6,25 +6,31 @@ import CalendarView from "./CalendarView";
 import { ChevronIcon, PlusIcon, TrashIcon } from "./icons";
 import { SortTh, sortRows, useSort } from "./sortable";
 import { CHANNELS, HIDDEN_CHANNELS, ITEM_STATUS, OWNERS, STATUS_COLOR } from "@/lib/constants";
-import { itemName } from "@/lib/utils";
+import { itemName, mdy } from "@/lib/utils";
 
 export default function ItemsView({
   search,
   onOpenDeal,
   onOpenItem,
   listOnly = false,
+  dateFrom,
+  dateTo,
 }: {
   search: string;
   onOpenDeal: (id: string) => void;
   onOpenItem: (id: string) => void;
   listOnly?: boolean;
+  dateFrom?: string;
+  dateTo?: string;
 }) {
   const { clients, deals, items, updateItem, addItem, deleteItem } = useStore();
   const [mode, setMode] = useState<"list" | "calendar">("list");
   const showCalendar = !listOnly && mode === "calendar";
   const [fChannel, setFChannel] = useState("");
   const [fStatus, setFStatus] = useState("");
-  const { sort, toggle } = useSort();
+  const { sort, toggle } = useSort(
+    dateFrom ? { key: "date", dir: "asc" } : null
+  );
 
   const channels = useMemo(
     () =>
@@ -35,6 +41,8 @@ export default function ItemsView({
   );
 
   const filtered = items.filter((it) => {
+    if (dateFrom && (!it.date || it.date < dateFrom)) return false;
+    if (dateTo && (!it.date || it.date > dateTo)) return false;
     if (fChannel && it.channel !== fChannel) return false;
     if (fStatus && it.status !== fStatus) return false;
     if (search && !itemName(it, deals, clients).toLowerCase().includes(search))
@@ -60,7 +68,11 @@ export default function ItemsView({
       <div className="view-head">
         <h1>광고 항목 관리</h1>
         <span className="count">
-          {showCalendar ? "캘린더" : `${rows.length}건`}
+          {showCalendar
+            ? "캘린더"
+            : dateFrom
+            ? `${mdy(dateFrom)}–${mdy(dateTo)} 주간 · ${rows.length}건`
+            : `${rows.length}건`}
         </span>
         <div className="spacer" />
         {!listOnly && (
