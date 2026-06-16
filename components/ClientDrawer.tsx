@@ -45,12 +45,7 @@ export default function ClientDrawer({
       <div className={`scrim${open ? " open" : ""}`} onClick={onClose} />
       <aside className={`drawer${open ? " open" : ""}`}>
         <div className="drawer-head">
-          <input
-            className="d-name"
-            placeholder="고객사명"
-            value={c?.name || ""}
-            onChange={(e) => c && updateClient(c.id, { name: e.target.value }, true)}
-          />
+          <div className="d-name d-name-static">{c?.name || "고객사 상세"}</div>
           <button className="x" onClick={onClose}>
             ×
           </button>
@@ -61,6 +56,16 @@ export default function ClientDrawer({
               <div className="d-sec">
                 <h3>고객사 정보</h3>
                 <div className="d-grid">
+                  <div className="fld full">
+                    <label>고객사명</label>
+                    <input
+                      value={c.name || ""}
+                      placeholder="고객사명을 입력하세요"
+                      onChange={(e) =>
+                        updateClient(c.id, { name: e.target.value }, true)
+                      }
+                    />
+                  </div>
                   <div className="fld">
                     <label>담당자</label>
                     <input
