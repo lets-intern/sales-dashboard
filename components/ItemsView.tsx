@@ -12,13 +12,16 @@ export default function ItemsView({
   search,
   onOpenDeal,
   onOpenItem,
+  listOnly = false,
 }: {
   search: string;
   onOpenDeal: (id: string) => void;
   onOpenItem: (id: string) => void;
+  listOnly?: boolean;
 }) {
   const { clients, deals, items, updateItem, addItem, deleteItem } = useStore();
   const [mode, setMode] = useState<"list" | "calendar">("list");
+  const showCalendar = !listOnly && mode === "calendar";
   const [fChannel, setFChannel] = useState("");
   const [fStatus, setFStatus] = useState("");
   const { sort, toggle } = useSort();
@@ -57,24 +60,26 @@ export default function ItemsView({
       <div className="view-head">
         <h1>광고 항목 관리</h1>
         <span className="count">
-          {mode === "list" ? `${rows.length}건` : "캘린더"}
+          {showCalendar ? "캘린더" : `${rows.length}건`}
         </span>
         <div className="spacer" />
-        <div className="view-toggle" style={{ marginRight: 12 }}>
-          <button
-            className={mode === "list" ? "active" : ""}
-            onClick={() => setMode("list")}
-          >
-            목록
-          </button>
-          <button
-            className={mode === "calendar" ? "active" : ""}
-            onClick={() => setMode("calendar")}
-          >
-            캘린더
-          </button>
-        </div>
-        {mode === "list" && (
+        {!listOnly && (
+          <div className="view-toggle" style={{ marginRight: 12 }}>
+            <button
+              className={mode === "list" ? "active" : ""}
+              onClick={() => setMode("list")}
+            >
+              목록
+            </button>
+            <button
+              className={mode === "calendar" ? "active" : ""}
+              onClick={() => setMode("calendar")}
+            >
+              캘린더
+            </button>
+          </div>
+        )}
+        {!showCalendar && (
           <div className="filters">
             <select value={fChannel} onChange={(e) => setFChannel(e.target.value)}>
               <option value="">전체 채널</option>
@@ -96,7 +101,7 @@ export default function ItemsView({
         )}
       </div>
 
-      {mode === "calendar" ? (
+      {showCalendar ? (
         <CalendarView onOpenDrawer={onOpenDeal} embedded />
       ) : (
         <div className="card">

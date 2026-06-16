@@ -885,6 +885,24 @@ td.actions {
   flex-direction: column;
   gap: 4px;
   position: relative;
+  cursor: pointer;
+}
+.cal-cell:hover {
+  background: rgba(58, 58, 255, 0.035);
+}
+.cell-add {
+  margin-top: auto;
+  align-self: center;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--accent);
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.1s;
+}
+.cal-cell:hover .cell-add {
+  opacity: 0.45;
 }
 .cal-cell.weekend {
   background: var(--surface-2);

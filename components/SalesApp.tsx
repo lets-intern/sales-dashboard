@@ -149,7 +149,19 @@ function AppInner() {
         {view === "clients" && (
           <ClientsView search={s} onOpenClient={openClient} />
         )}
-        {view === "calendar" && <CalendarView onOpenDrawer={openDeal} />}
+        {view === "calendar" && (
+          <>
+            <CalendarView onOpenDrawer={openDeal} />
+            <div style={{ marginTop: 18 }}>
+              <ItemsView
+                search={s}
+                onOpenDeal={openDeal}
+                onOpenItem={openItem}
+                listOnly
+              />
+            </div>
+          </>
+        )}
       </main>
 
       <Drawer dealId={openDealId} onClose={() => setOpenDealId(null)} />

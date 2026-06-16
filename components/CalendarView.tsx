@@ -14,7 +14,7 @@ export default function CalendarView({
   onOpenDrawer: (id: string) => void;
   embedded?: boolean;
 }) {
-  const { clients, deals, items, updateItem } = useStore();
+  const { clients, deals, items, updateItem, addDeal, addItem } = useStore();
   const [calStart, setCalStart] = useState(() => mondayOf(new Date()));
 
   const days = Array.from({ length: 7 }, (_, i) => addDays(calStart, i));
@@ -81,6 +81,8 @@ export default function CalendarView({
                 clients={clients}
                 onOpenDrawer={onOpenDrawer}
                 updateItem={updateItem}
+                addDeal={addDeal}
+                addItem={addItem}
               />
             ))}
           </div>
@@ -120,6 +122,8 @@ function CalRow({
   clients,
   onOpenDrawer,
   updateItem,
+  addDeal,
+  addItem,
 }: {
   channel: string;
   days: Date[];
@@ -128,7 +132,16 @@ function CalRow({
   clients: ReturnType<typeof useStore>["clients"];
   onOpenDrawer: (id: string) => void;
   updateItem: ReturnType<typeof useStore>["updateItem"];
+  addDeal: ReturnType<typeof useStore>["addDeal"];
+  addItem: ReturnType<typeof useStore>["addItem"];
 }) {
+  // 빈 칸(또는 칸의 빈 영역) 클릭 시: 이 채널·날짜로 새 세일즈 + 항목 생성 후 드로어 열기
+  async function addHere(ds: string) {
+    const dealId = await addDeal();
+    const itemId = await addItem(dealId);
+    updateItem(itemId, { channel, date: ds });
+    onOpenDrawer(dealId);
+  }
   return (
     <>
       <div className="ch-name">{channel}</div>
@@ -137,7 +150,12 @@ function CalRow({
         const ds = ymd(d);
         const cell = cellItems.filter((it) => it.channel === channel && it.date === ds);
         return (
-          <div key={i} className={`cal-cell${we ? " weekend" : ""}`}>
+          <div
+            key={i}
+            className={`cal-cell${we ? " weekend" : ""}`}
+            onClick={() => addHere(ds)}
+            title="클릭해서 이 채널·날짜로 새 세일즈 추가"
+          >
             {cell.map((it) => {
               const c = STATUS_COLOR[it.status] || "gray";
               const cc = c === "blue" || c === "red" ? "gray" : c;
@@ -163,7 +181,8 @@ function CalRow({
                   </button>
                   <span
                     className="chip-label"
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       if (it.deal_id) onOpenDrawer(it.deal_id);
                     }}
                   >
@@ -172,6 +191,9 @@ function CalRow({
                 </div>
               );
             })}
+            <span className="cell-add" aria-hidden>
+              +
+            </span>
           </div>
         );
       })}
