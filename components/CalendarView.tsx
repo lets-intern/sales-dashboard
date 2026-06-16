@@ -14,7 +14,7 @@ export default function CalendarView({
   onOpenDrawer: (id: string) => void;
   embedded?: boolean;
 }) {
-  const { clients, deals, items } = useStore();
+  const { clients, deals, items, updateItem } = useStore();
   const [calStart, setCalStart] = useState(() => mondayOf(new Date()));
 
   const days = Array.from({ length: 7 }, (_, i) => addDays(calStart, i));
@@ -80,6 +80,7 @@ export default function CalendarView({
                 deals={deals}
                 clients={clients}
                 onOpenDrawer={onOpenDrawer}
+                updateItem={updateItem}
               />
             ))}
           </div>
@@ -118,6 +119,7 @@ function CalRow({
   deals,
   clients,
   onOpenDrawer,
+  updateItem,
 }: {
   channel: string;
   days: Date[];
@@ -125,6 +127,7 @@ function CalRow({
   deals: ReturnType<typeof useStore>["deals"];
   clients: ReturnType<typeof useStore>["clients"];
   onOpenDrawer: (id: string) => void;
+  updateItem: ReturnType<typeof useStore>["updateItem"];
 }) {
   return (
     <>
@@ -139,17 +142,33 @@ function CalRow({
               const c = STATUS_COLOR[it.status] || "gray";
               const cc = c === "blue" || c === "red" ? "gray" : c;
               const label = itemName(it, deals, clients);
+              const done = it.status === "완료";
               return (
                 <div
                   key={it.id}
                   className="chip"
                   data-c={cc}
+                  data-done={done ? "1" : undefined}
                   title={label}
-                  onClick={() => {
-                    if (it.deal_id) onOpenDrawer(it.deal_id);
-                  }}
                 >
-                  {label}
+                  <button
+                    className="chip-check"
+                    title={done ? "완료 해제" : "완료로 표시"}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      updateItem(it.id, { status: done ? "시작 전" : "완료" });
+                    }}
+                  >
+                    {done ? "✓" : ""}
+                  </button>
+                  <span
+                    className="chip-label"
+                    onClick={() => {
+                      if (it.deal_id) onOpenDrawer(it.deal_id);
+                    }}
+                  >
+                    {label}
+                  </span>
                 </div>
               );
             })}
