@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo } from "react";
 import { useStore } from "./store";
-import { STATUS_COLOR, TYPE_TAG } from "@/lib/constants";
+import { REVENUE_STATUS, STATUS_COLOR, TYPE_TAG } from "@/lib/constants";
 import { fmtWon, mdy } from "@/lib/utils";
 
 export default function ClientDrawer({
@@ -36,7 +36,7 @@ export default function ClientDrawer({
   }, [c, deals]);
 
   const revenue = history
-    .filter((d) => d.status === "사업 진행 중" || d.status === "완료")
+    .filter((d) => REVENUE_STATUS.includes(d.status))
     .reduce((a, d) => a + (Number(d.amount) || 0), 0);
   const totalAll = history.reduce((a, d) => a + (Number(d.amount) || 0), 0);
 

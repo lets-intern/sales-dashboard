@@ -705,6 +705,15 @@ td.name-cell .cell {
   border-radius: 10px;
   padding: 0 6px;
   font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+}
+.open-btn .n-pending {
+  background: var(--s-amber-bg);
+  color: var(--s-amber-fg);
+}
+.open-btn .n-done {
+  background: var(--s-blue-bg);
+  color: var(--s-blue-fg);
 }
 
 .row-del {

@@ -152,7 +152,9 @@ export default function DealsView({
                   const sc = STATUS_COLOR[d.status] || "gray";
                   const ig = INVOICE_TAG[d.invoice_status] || ["var(--s-gray-bg)", "var(--s-gray-fg)"];
                   const c = clients.find((x) => x.id === d.client_id);
-                  const nItems = items.filter((x) => x.deal_id === d.id).length;
+                  const dItems = items.filter((x) => x.deal_id === d.id);
+                  const nDone = dItems.filter((x) => x.status === "완료").length;
+                  const nPending = dItems.length - nDone;
                   return (
                     <tr key={d.id}>
                       <td>
@@ -303,7 +305,17 @@ export default function DealsView({
                       <td>
                         <button className="open-btn" onClick={() => onOpenDrawer(d.id)}>
                           <ChevronIcon />
-                          열기 {nItems ? <span className="n">{nItems}</span> : null}
+                          열기
+                          {nPending ? (
+                            <span className="n n-pending" title="진행 중인 항목">
+                              {nPending}
+                            </span>
+                          ) : null}
+                          {nDone ? (
+                            <span className="n n-done" title="완료된 항목">
+                              {nDone}
+                            </span>
+                          ) : null}
                         </button>
                       </td>
                       <td className="actions">

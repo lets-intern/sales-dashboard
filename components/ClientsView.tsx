@@ -3,6 +3,7 @@
 import { useStore } from "./store";
 import { PlusIcon, TrashIcon } from "./icons";
 import { SortTh, sortRows, useSort } from "./sortable";
+import { REVENUE_STATUS } from "@/lib/constants";
 import { fmtWon } from "@/lib/utils";
 
 export default function ClientsView({
@@ -19,11 +20,7 @@ export default function ClientsView({
     deals.filter((d) => d.client_id === clientId).length;
   const dealsRevenue = (clientId: string) =>
     deals
-      .filter(
-        (d) =>
-          d.client_id === clientId &&
-          (d.status === "사업 진행 중" || d.status === "완료")
-      )
+      .filter((d) => d.client_id === clientId && REVENUE_STATUS.includes(d.status))
       .reduce((a, d) => a + (Number(d.amount) || 0), 0);
 
   const filtered = clients.filter(
@@ -100,7 +97,7 @@ export default function ClientsView({
                   const cDeals = deals.filter((d) => d.client_id === c.id);
                   const n = cDeals.length;
                   const revenue = cDeals
-                    .filter((d) => d.status === "사업 진행 중" || d.status === "완료")
+                    .filter((d) => REVENUE_STATUS.includes(d.status))
                     .reduce((a, d) => a + (Number(d.amount) || 0), 0);
                   return (
                     <tr key={c.id}>

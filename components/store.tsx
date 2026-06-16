@@ -48,6 +48,11 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [clients, setClients] = useState<Client[]>([]);
   const [deals, setDeals] = useState<Deal[]>([]);
   const [items, setItems] = useState<Item[]>([]);
+  // 최신 상태를 이벤트 핸들러에서 읽기 위한 ref (렌더마다 동기화)
+  const itemsRef = useRef(items);
+  itemsRef.current = items;
+  const dealsRef = useRef(deals);
+  dealsRef.current = deals;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [toastMsg, setToastMsg] = useState("");
@@ -124,8 +129,27 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     (id: string, patch: Partial<Item>, debounce?: boolean) => {
       setItems((prev) => prev.map((x) => (x.id === id ? { ...x, ...patch } : x)));
       scheduleDb("items", id, patch as Record<string, unknown>, debounce);
+
+      // 항목을 '완료'로 바꿨을 때: 그 세일즈의 모든 항목이 완료면 '사업 진행 중' → '광고 완료' 자동 전환
+      if (patch.status === "완료") {
+        const next = itemsRef.current.map((x) =>
+          x.id === id ? { ...x, ...patch } : x
+        );
+        const it = next.find((x) => x.id === id);
+        if (it?.deal_id) {
+          const siblings = next.filter((x) => x.deal_id === it.deal_id);
+          const allDone =
+            siblings.length > 0 && siblings.every((x) => x.status === "완료");
+          if (allDone) {
+            const deal = dealsRef.current.find((d) => d.id === it.deal_id);
+            if (deal && deal.status === "사업 진행 중") {
+              updateDeal(deal.id, { status: "광고 완료" });
+            }
+          }
+        }
+      }
     },
-    [scheduleDb]
+    [scheduleDb, updateDeal]
   );
 
   const addClient = useCallback(async () => {

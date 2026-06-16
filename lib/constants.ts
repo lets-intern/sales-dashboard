@@ -4,10 +4,15 @@ export const DEAL_STATUS = [
   "시작 전",
   "논의 진행 중",
   "사업 진행 중",
+  "광고 완료",
+  "보고 완료",
   "완료",
   "Drop",
   "Fail",
 ];
+
+// 매출(진행·완료 합계)로 집계하는 상태값
+export const REVENUE_STATUS = ["사업 진행 중", "광고 완료", "보고 완료", "완료"];
 export const ITEM_STATUS = ["시작 전", "진행 중", "완료"];
 export const CHANNELS = [
   "인스타 @official 피드",
@@ -51,6 +56,8 @@ export const STATUS_COLOR: Record<string, string> = {
   "논의 진행 중": "amber",
   "진행 중": "amber",
   "사업 진행 중": "blue",
+  "광고 완료": "violet",
+  "보고 완료": "green",
   완료: "green",
   Drop: "red",
   Fail: "red",

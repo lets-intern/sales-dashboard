@@ -11,7 +11,7 @@ import ItemDrawer from "./ItemDrawer";
 import ClientDrawer from "./ClientDrawer";
 import { LogoutIcon, SearchIcon } from "./icons";
 import { addDays, fmtWon, mondayOf, quarterList, ymd } from "@/lib/utils";
-import { CHANNELS, HIDDEN_CHANNELS, OWNERS } from "@/lib/constants";
+import { CHANNELS, HIDDEN_CHANNELS, OWNERS, REVENUE_STATUS } from "@/lib/constants";
 
 type View = "deals" | "items" | "clients" | "calendar";
 const TABS: { id: View; label: string }[] = [
@@ -82,7 +82,7 @@ function AppInner() {
   const total = useMemo(
     () =>
       deals
-        .filter((d) => d.status === "사업 진행 중" || d.status === "완료")
+        .filter((d) => REVENUE_STATUS.includes(d.status))
         .reduce((a, d) => a + (Number(d.amount) || 0), 0),
     [deals]
   );
