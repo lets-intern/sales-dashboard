@@ -8,6 +8,7 @@ import ClientsView from "./ClientsView";
 import CalendarView from "./CalendarView";
 import Drawer from "./Drawer";
 import ItemDrawer from "./ItemDrawer";
+import ClientDrawer from "./ClientDrawer";
 import { LogoutIcon, SearchIcon } from "./icons";
 import { fmtWon, quarterList } from "@/lib/utils";
 import { CHANNELS, HIDDEN_CHANNELS, OWNERS } from "@/lib/constants";
@@ -26,14 +27,22 @@ function AppInner() {
   const [search, setSearch] = useState("");
   const [openDealId, setOpenDealId] = useState<string | null>(null);
   const [openItemId, setOpenItemId] = useState<string | null>(null);
+  const [openClientId, setOpenClientId] = useState<string | null>(null);
 
   const openDeal = (id: string) => {
     setOpenItemId(null);
+    setOpenClientId(null);
     setOpenDealId(id);
   };
   const openItem = (id: string) => {
     setOpenDealId(null);
+    setOpenClientId(null);
     setOpenItemId(id);
+  };
+  const openClient = (id: string) => {
+    setOpenDealId(null);
+    setOpenItemId(null);
+    setOpenClientId(id);
   };
 
   useEffect(() => {
@@ -137,7 +146,9 @@ function AppInner() {
         {view === "items" && (
           <ItemsView search={s} onOpenDeal={openDeal} onOpenItem={openItem} />
         )}
-        {view === "clients" && <ClientsView search={s} />}
+        {view === "clients" && (
+          <ClientsView search={s} onOpenClient={openClient} />
+        )}
         {view === "calendar" && <CalendarView onOpenDrawer={openDeal} />}
       </main>
 
@@ -145,6 +156,11 @@ function AppInner() {
       <ItemDrawer
         itemId={openItemId}
         onClose={() => setOpenItemId(null)}
+        onOpenDeal={openDeal}
+      />
+      <ClientDrawer
+        clientId={openClientId}
+        onClose={() => setOpenClientId(null)}
         onOpenDeal={openDeal}
       />
 

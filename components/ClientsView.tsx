@@ -5,7 +5,13 @@ import { PlusIcon, TrashIcon } from "./icons";
 import { SortTh, sortRows, useSort } from "./sortable";
 import { fmtWon } from "@/lib/utils";
 
-export default function ClientsView({ search }: { search: string }) {
+export default function ClientsView({
+  search,
+  onOpenClient,
+}: {
+  search: string;
+  onOpenClient: (id: string) => void;
+}) {
   const { clients, deals, updateClient, addClient, deleteClient } = useStore();
   const { sort, toggle } = useSort();
 
@@ -39,7 +45,6 @@ export default function ClientsView({ search }: { search: string }) {
 
   const fields: {
     key:
-      | "name"
       | "contact_person"
       | "contact_email"
       | "contact_phone"
@@ -49,7 +54,6 @@ export default function ClientsView({ search }: { search: string }) {
     ph: string;
     cls?: string;
   }[] = [
-    { key: "name", ph: "고객사명", cls: "name-cell" },
     { key: "contact_person", ph: "담당자/직함" },
     { key: "contact_email", ph: "이메일" },
     { key: "contact_phone", ph: "연락처" },
@@ -100,6 +104,15 @@ export default function ClientsView({ search }: { search: string }) {
                     .reduce((a, d) => a + (Number(d.amount) || 0), 0);
                   return (
                     <tr key={c.id}>
+                      <td className="name-cell">
+                        <button
+                          className="client-link"
+                          onClick={() => onOpenClient(c.id)}
+                          title="판매 내역 보기"
+                        >
+                          {c.name || "(이름 없음)"}
+                        </button>
+                      </td>
                       {fields.map((f) => (
                         <td key={f.key} className={f.cls}>
                           <input
