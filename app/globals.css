@@ -384,7 +384,7 @@ table {
   width: 100%;
 }
 #dealsTable {
-  min-width: 1620px;
+  min-width: 1642px;
 }
 #itemsTable {
   min-width: 1040px;
@@ -694,6 +694,7 @@ td.name-cell .cell {
   font-size: 11.5px;
   font-weight: 600;
   margin: 6px;
+  white-space: nowrap;
 }
 .open-btn:hover {
   border-color: var(--accent);

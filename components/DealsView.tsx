@@ -131,7 +131,7 @@ export default function DealsView({
                 <SortTh label="상태" sortKey="status" sort={sort} onToggle={toggle} width={140} />
                 <SortTh label="기간" sortKey="period" sort={sort} onToggle={toggle} width={200} />
                 <SortTh label="담당자" sortKey="owner" sort={sort} onToggle={toggle} width={104} />
-                <th style={{ width: 110 }}>상세</th>
+                <th style={{ width: 132 }}>상세</th>
                 <th style={{ width: 40 }}></th>
               </tr>
             </thead>
