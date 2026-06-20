@@ -51,13 +51,13 @@ export default function SharePage() {
         <section className="share-docs">
           <DocImage
             src="/docs/business-license.png"
-            alt="렛츠커리어 사업자등록증"
-            caption="사업자등록증"
+            alt="아이엔지(렛츠커리어) 사업자등록증"
+            caption="[아이엔지(렛츠커리어) 사업자등록증]"
           />
           <DocImage
             src="/docs/bankbook.png"
-            alt="렛츠커리어 통장 사본"
-            caption="통장 사본 (입금 계좌)"
+            alt="아이엔지(렛츠커리어) 통장 사본"
+            caption="[아이엔지(렛츠커리어) 통장 사본]"
           />
         </section>
 
