@@ -79,6 +79,15 @@ export default function DealsView({
       <div className="view-head">
         <h1>세일즈 대시보드</h1>
         <span className="count">{rows.length}건</span>
+        <a
+          className="share-link-btn"
+          href="/share"
+          target="_blank"
+          rel="noopener noreferrer"
+          title="새 탭에서 열기 · 고객사에게 공유하세요"
+        >
+          📄 고객사 배포 페이지 ↗
+        </a>
         <div className="spacer" />
         <div className="filters">
           <select value={fType} onChange={(e) => setFType(e.target.value)}>

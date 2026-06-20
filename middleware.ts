@@ -3,7 +3,8 @@ import { updateSession } from "@/utils/supabase/middleware";
 import { AUTH_COOKIE, authToken } from "@/lib/auth";
 
 // 비밀번호 게이트를 거치지 않아도 되는 경로
-const PUBLIC_PATHS = ["/login", "/api/login"];
+// /share = 고객사에게 배포하는 공개 안내 페이지 (비밀번호 없이 열람)
+const PUBLIC_PATHS = ["/login", "/api/login", "/share"];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
