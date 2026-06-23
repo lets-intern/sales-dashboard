@@ -157,6 +157,8 @@ function CalRow({
     if (onDraftOpen) onDraftOpen(dealId);
     else onOpenDrawer(dealId);
   }
+  // 드래그 중 강조할 칸 index
+  const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
   return (
     <>
       <div className="ch-name">{channel}</div>
@@ -167,9 +169,27 @@ function CalRow({
         return (
           <div
             key={i}
-            className={`cal-cell${we ? " weekend" : ""}`}
+            className={`cal-cell${we ? " weekend" : ""}${
+              dragOverIdx === i ? " drag-over" : ""
+            }`}
             onClick={() => addHere(ds)}
             title="클릭해서 이 채널·날짜로 새 세일즈 추가"
+            onDragOver={(e) => {
+              e.preventDefault();
+              e.dataTransfer.dropEffect = "move";
+              if (dragOverIdx !== i) setDragOverIdx(i);
+            }}
+            onDragLeave={(e) => {
+              // 자식 요소로 이동하는 경우는 무시
+              if (!e.currentTarget.contains(e.relatedTarget as Node))
+                setDragOverIdx((p) => (p === i ? null : p));
+            }}
+            onDrop={(e) => {
+              e.preventDefault();
+              setDragOverIdx(null);
+              const id = e.dataTransfer.getData("text/plain");
+              if (id) updateItem(id, { channel, date: ds });
+            }}
           >
             {cell.map((it) => {
               const c = STATUS_COLOR[it.status] || "gray";
@@ -183,6 +203,12 @@ function CalRow({
                   data-c={cc}
                   data-done={done ? "1" : undefined}
                   title={label}
+                  draggable
+                  onDragStart={(e) => {
+                    e.stopPropagation();
+                    e.dataTransfer.setData("text/plain", it.id);
+                    e.dataTransfer.effectAllowed = "move";
+                  }}
                 >
                   <button
                     className="chip-check"
