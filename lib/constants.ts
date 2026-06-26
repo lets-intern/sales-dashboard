@@ -15,6 +15,7 @@ export const DEAL_STATUS = [
 export const REVENUE_STATUS = ["사업 진행 중", "광고 완료", "보고 완료", "완료"];
 export const ITEM_STATUS = ["시작 전", "진행 중", "완료"];
 export const CHANNELS = [
+  "무료 세미나",
   "인스타 @official 피드",
   "인스타 @official 스토리",
   "인스타 @job 피드",
