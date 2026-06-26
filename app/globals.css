@@ -1751,6 +1751,131 @@ td.actions {
   font-size: 13px;
 }
 
+/* ===== 오늘의 광고 송출 메모 (세일즈 상단) ===== */
+.dispatch-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--s-red-fg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+.dispatch-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+}
+.dispatch-siren {
+  font-size: 15px;
+}
+.dispatch-title {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.dispatch-count {
+  font-size: 11.5px;
+  color: var(--s-red-fg);
+  background: var(--s-red-bg);
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+.dispatch-daynav {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: 2px;
+}
+.dispatch-daynav button {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink-2);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 7px;
+  cursor: pointer;
+}
+.dispatch-daynav button:hover {
+  background: var(--s-gray-bg);
+}
+.dispatch-daynav button.on {
+  border-color: var(--s-red-fg);
+  color: var(--s-red-fg);
+}
+.dispatch-copy {
+  border: none;
+  background: var(--ink-1);
+  color: #fff;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 6px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.dispatch-copy:hover {
+  opacity: 0.88;
+}
+.dispatch-copy:disabled {
+  background: var(--s-gray-bg);
+  color: var(--ink-3);
+  cursor: default;
+}
+.dispatch-toggle {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink-2);
+  font-size: 12px;
+  width: 30px;
+  height: 28px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.dispatch-body {
+  padding: 4px 16px 14px;
+}
+.dispatch-empty {
+  color: var(--ink-3);
+  font-size: 13px;
+  padding: 4px 0 2px;
+}
+.dispatch-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.dispatch-list li {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13.5px;
+  color: var(--ink-1);
+}
+.dispatch-list li .bul {
+  color: var(--s-red-fg);
+  font-weight: 700;
+}
+.dispatch-list li.done {
+  color: var(--ink-3);
+  text-decoration: line-through;
+  text-decoration-color: var(--ink-3);
+}
+.dispatch-list li .done-tag {
+  font-size: 10.5px;
+  color: var(--s-green-fg);
+  background: var(--s-green-bg);
+  padding: 1px 6px;
+  border-radius: 10px;
+  text-decoration: none;
+}
+
 /* ===== 세일즈 대시보드: 고객사 배포 페이지 버튼 ===== */
 .share-link-btn {
   display: inline-flex;

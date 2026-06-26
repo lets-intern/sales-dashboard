@@ -9,6 +9,7 @@ import CalendarView from "./CalendarView";
 import Drawer from "./Drawer";
 import ItemDrawer from "./ItemDrawer";
 import ClientDrawer from "./ClientDrawer";
+import TodayDispatch from "./TodayDispatch";
 import { LogoutIcon, SearchIcon } from "./icons";
 import { addDays, fmtWon, mondayOf, quarterList, ymd } from "@/lib/utils";
 import { CHANNELS, HIDDEN_CHANNELS, OWNERS, REVENUE_STATUS } from "@/lib/constants";
@@ -149,6 +150,7 @@ function AppInner() {
       </div>
 
       <main>
+        <TodayDispatch />
         {error && (
           <div className="card" style={{ padding: 16, marginBottom: 14 }}>
             <b>데이터를 불러오지 못했어요.</b>
