@@ -1,0 +1,225 @@
+/* 메일 생성기 스타일. 앱 디자인 토큰(--ink/--accent/--line 등) 재사용.
+   프로토타입 intern.css 를 앱 톤에 맞게 재정렬. 클래스는 mg- 프리픽스로 격리. */
+
+.mg-root {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 4px 0 40px;
+}
+
+.mg-panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 18px 20px;
+  margin-bottom: 16px;
+}
+
+.mg-h2 {
+  font-size: 14px;
+  margin: 0 0 12px;
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.mg-sub {
+  color: var(--ink-2);
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+/* ── 슬롯 ── */
+.mg-slot-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.mg-slot-btn {
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--surface-2);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+.mg-slot-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+.mg-slot-btn.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.mg-slot-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── 툴바 / 에디터 ── */
+.mg-toolbar {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.mg-toolbar button {
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--surface-2);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+}
+.mg-toolbar button:hover {
+  border-color: var(--accent);
+}
+
+.mg-editor {
+  width: 100%;
+  min-height: 160px;
+  max-height: 280px;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.6;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow-y: auto;
+  white-space: normal;
+  resize: vertical;
+  background: var(--surface);
+}
+.mg-editor:focus {
+  outline: 2px solid var(--accent-soft);
+}
+.mg-result-box {
+  min-height: 200px;
+  max-height: 340px;
+  background: var(--surface-2);
+}
+
+/* 기본값 수정 중 강조 */
+.mg-editor.editing-default,
+.mg-subject-input.editing-default {
+  border-color: var(--s-amber-fg);
+  background: var(--s-amber-bg);
+}
+
+/* ── 폼 ── */
+.mg-form-grid {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.mg-field {
+  flex: 1;
+  min-width: 200px;
+}
+.mg-field-compact {
+  flex: 0 1 220px;
+  min-width: 0;
+}
+.mg-field label {
+  display: block;
+  font-size: 12px;
+  color: var(--ink-2);
+  margin-bottom: 4px;
+}
+.mg-field input,
+.mg-field select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: inherit;
+  background: var(--surface);
+}
+.mg-field input:focus,
+.mg-field select:focus {
+  outline: 2px solid var(--accent-soft);
+  border-color: var(--accent);
+}
+
+/* ── 제목 입력/결과 ── */
+.mg-subject-input {
+  width: 100%;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  resize: vertical;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  background: var(--surface);
+}
+.mg-subject-input:focus {
+  outline: 2px solid var(--accent-soft);
+  border-color: var(--accent);
+}
+.mg-subject-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+.mg-subject-row .mg-subject-input {
+  flex: 1;
+}
+
+/* ── 버튼 / 액션 ── */
+.mg-btn {
+  cursor: pointer;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--surface-2);
+  color: var(--ink);
+  white-space: nowrap;
+}
+.mg-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+.mg-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.mg-btn-primary {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.mg-btn-primary:hover:not(:disabled) {
+  opacity: 0.92;
+}
+
+.mg-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.mg-status {
+  font-size: 12px;
+  color: var(--ink-3);
+  margin-right: auto;
+}
+.mg-status-inline {
+  margin-top: 8px;
+}
+.mg-result-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 14px 0 8px;
+}
+.mg-result-actions label {
+  font-size: 12px;
+  color: var(--ink-2);
+}

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { StoreProvider, useStore } from "./store";
 import DealsView from "./DealsView";
@@ -119,6 +120,9 @@ function AppInner() {
               {t.label}
             </button>
           ))}
+          <Link className="tab" href="/mail" style={{ textDecoration: "none" }}>
+            메일
+          </Link>
         </div>
         <div className="spacer" />
         <div className={`sync${loading ? "" : " live"}`}>
