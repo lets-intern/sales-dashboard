@@ -1,23 +1,40 @@
 "use client";
 
 // /mail — 세일즈 메일 템플릿 생성기 (비밀번호 게이트 안, PUBLIC_PATHS 에 추가하지 않음).
-// 서브탭 3종(콜드메일/무료공고/대외활동) 셸. 이번 Push 에서는 무료공고(intern)만 활성.
+// 서브탭 3종(콜드메일/무료공고/대외활동) 셸. 각 탭은 독립 config 를 로드하며,
+// useMailGenerator 가 config.key(sales/intern/activity) 단위로 슬롯/기본값/폼값을
+// 분리 저장하므로 탭 사이 데이터 네임스페이스가 섞이지 않는다.
+// (Gmail 초안 패널은 Push 5에서 추가된다.)
 
 import Link from "next/link";
 import { useState } from "react";
 import MailGenerator from "@/components/mail/MailGenerator";
+import type { GeneratorConfig } from "@/lib/mail/configs/types";
+import { salesConfig, SALES_DEFAULT_FIELD_VALUES } from "@/lib/mail/configs/sales";
 import { internConfig, INTERN_DEFAULT_FIELD_VALUES } from "@/lib/mail/configs/intern";
+import {
+  activityConfig,
+  ACTIVITY_DEFAULT_FIELD_VALUES,
+} from "@/lib/mail/configs/activity";
+import type { GeneratorKey } from "@/lib/mail/types";
 
-type MailTab = "sales" | "intern" | "activity";
+interface TabDef {
+  id: GeneratorKey;
+  config: GeneratorConfig;
+  initialFieldValues: Record<string, string>;
+}
 
-const TABS: { id: MailTab; label: string; ready: boolean }[] = [
-  { id: "sales", label: "콜드메일", ready: false },
-  { id: "intern", label: "무료공고", ready: true },
-  { id: "activity", label: "대외활동", ready: false },
+// 서브탭 3종. 표시 순서는 콜드메일 → 무료공고 → 대외활동.
+const TABS: TabDef[] = [
+  { id: "sales", config: salesConfig, initialFieldValues: SALES_DEFAULT_FIELD_VALUES },
+  { id: "intern", config: internConfig, initialFieldValues: INTERN_DEFAULT_FIELD_VALUES },
+  { id: "activity", config: activityConfig, initialFieldValues: ACTIVITY_DEFAULT_FIELD_VALUES },
 ];
 
 export default function MailPage() {
-  const [tab, setTab] = useState<MailTab>("intern");
+  const [tab, setTab] = useState<GeneratorKey>("sales");
+
+  const activeTab = TABS.find((t) => t.id === tab) ?? TABS[0];
 
   return (
     <div>
@@ -31,11 +48,9 @@ export default function MailPage() {
             <button
               key={t.id}
               className={`tab${tab === t.id ? " active" : ""}`}
-              onClick={() => t.ready && setTab(t.id)}
-              disabled={!t.ready}
-              title={t.ready ? undefined : "준비 중"}
+              onClick={() => setTab(t.id)}
             >
-              {t.label}
+              {t.config.label}
             </button>
           ))}
         </div>
@@ -46,20 +61,12 @@ export default function MailPage() {
       </div>
 
       <main>
-        {tab === "intern" && (
-          <MailGenerator
-            config={internConfig}
-            initialFieldValues={INTERN_DEFAULT_FIELD_VALUES}
-          />
-        )}
-        {tab !== "intern" && (
-          <div className="card" style={{ padding: 16, maxWidth: 980, margin: "0 auto" }}>
-            <b>준비 중입니다.</b>
-            <div style={{ color: "var(--ink-2)", marginTop: 6, fontSize: 12.5 }}>
-              이 생성기는 다음 단계에서 추가됩니다.
-            </div>
-          </div>
-        )}
+        {/* config.key 를 key 로 줘서 탭 전환 시 컨트롤러(슬롯/폼값 상태)를 완전히 재마운트한다. */}
+        <MailGenerator
+          key={activeTab.id}
+          config={activeTab.config}
+          initialFieldValues={activeTab.initialFieldValues}
+        />
       </main>
     </div>
   );
