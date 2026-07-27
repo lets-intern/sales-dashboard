@@ -25,6 +25,8 @@ import {
   type LoadedGenerator,
 } from "@/lib/mail/generators/store";
 import { SEED_DEFINITIONS } from "@/lib/mail/generators/seed";
+import { GENERATOR_PROMPT } from "@/lib/mail/generators/prompt";
+import { copyText } from "@/lib/mail/engine/clipboard";
 
 const pretty = (value: unknown) => JSON.stringify(value, null, 2);
 
@@ -87,6 +89,26 @@ export default function GeneratorsPage() {
     setDraft(pretty(row.definition));
     setErrors([]);
     setStatus("");
+  };
+
+  // AI 에게 정의 JSON 을 만들게 하는 프롬프트를 클립보드에 넣는다.
+  // 앱 안에서 복사하므로 터미널·문서를 거치며 공백이 깨질 일이 없다.
+  const copyPrompt = async () => {
+    try {
+      await copyText(GENERATOR_PROMPT);
+      await alertDialog(
+        "AI 프롬프트를 복사했습니다.\n\n" +
+          "ChatGPT·Claude 등에 붙여넣고, 이어서 어떤 메일을 만들고 싶은지 설명하세요.\n" +
+          "예) 신규 광고주에게 보내는 제휴 제안 메일. 회사명·담당자명·제휴유형(콘텐츠/채용)·회신기한이 필요해.\n\n" +
+          "받은 JSON 을 아래 편집기에 붙여넣고 검증 후 저장하면 됩니다.",
+        { title: "복사 완료" }
+      );
+    } catch (e) {
+      await alertDialog(`복사하지 못했습니다.\n${(e as Error).message}`, {
+        title: "복사 실패",
+        tone: "danger",
+      });
+    }
   };
 
   const startNew = async () => {
@@ -300,9 +322,14 @@ export default function GeneratorsPage() {
           <div className="mg-panel">
             <div className="mg-h2-row">
               <h2 className="mg-h2">생성기</h2>
-              <button type="button" className="mg-btn" onClick={startNew}>
-                새 생성기
-              </button>
+              <div className="gen-actions">
+                <button type="button" className="mg-btn" onClick={copyPrompt}>
+                  AI 프롬프트 복사
+                </button>
+                <button type="button" className="mg-btn" onClick={startNew}>
+                  새 생성기
+                </button>
+              </div>
             </div>
 
             {loading ? (
@@ -386,12 +413,17 @@ export default function GeneratorsPage() {
             {status && <div className="mg-sub">{status}</div>}
 
             <div className="mg-sub gen-help">
+              직접 쓰기 어려우면 위의 <b>AI 프롬프트 복사</b>를 눌러 ChatGPT·Claude 에
+              붙여넣고 원하는 메일을 설명하세요. 받은 JSON 을 여기에 붙여넣으면 됩니다.
+              <br />
               필드 하나가 플레이스홀더 하나입니다. <code>name</code> 이 본문의{" "}
               <code>{"{{이름}}"}</code> 이 되고, 폼에 다른 이름을 쓰려면{" "}
               <code>label</code> 을 따로 줍니다. 타입은 text · email · select · date ·
               period 이며, date 는 <code>format</code> 으로 표기(full · short · weekday ·
               dday)를 고릅니다. 같은 입력을 다른 표기로 한 번 더 쓰려면{" "}
-              <code>also</code> 에 이름을 적습니다.
+              <code>also</code> 에 이름을 적습니다. 조사는 본문에{" "}
+              <code>{"{{회사명}}[은/는]"}</code> 처럼 대괄호로 적어야 받침에 맞게
+              자동 선택됩니다.
             </div>
           </div>
         </div>
