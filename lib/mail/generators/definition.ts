@@ -12,7 +12,7 @@ import { z } from "zod";
 
 // 플레이스홀더로 쓸 수 있는 이름. {{}} 안에 그대로 들어가므로 중괄호·공백을 막는다.
 const placeholderName = z
-  .string()
+  .string({ error: "이름(name)이 없습니다" })
   .min(1, "이름은 비워 둘 수 없습니다")
   .max(40, "이름은 40자 이내여야 합니다")
   .refine((v) => !/[{}]/.test(v), "이름에 중괄호({, })는 쓸 수 없습니다")
@@ -20,7 +20,7 @@ const placeholderName = z
 
 // state 키. 폼 input 의 id 로 쓰이므로 영숫자로 제한한다.
 const fieldId = z
-  .string()
+  .string({ error: "필드에 id 가 없습니다" })
   .regex(/^[a-zA-Z][a-zA-Z0-9_]*$/, "id 는 영문으로 시작하는 영숫자여야 합니다");
 
 // 날짜 표시 형식. computeValues 를 대체하는 유일한 장치다.
@@ -161,14 +161,18 @@ export const generatorDefinition = z
   .object({
     // 저장 네임스페이스. 슬롯·기본값·폼값이 이 키로 분리된다.
     key: z
-      .string()
+      .string({ error: "key 가 없습니다 (생성기를 구분하는 이름)" })
       .regex(/^[a-z][a-z0-9-]*$/, "key 는 영소문자·숫자·하이픈만 쓸 수 있습니다"),
     // 탭에 표시될 이름
-    label: z.string().min(1, "탭 이름을 입력하세요"),
+    label: z
+      .string({ error: "label 이 없습니다 (탭에 표시할 이름)" })
+      .min(1, "탭 이름을 입력하세요"),
     // 공장 기본 제목·본문. 사용자가 "기본값 저장"으로 덮으면 그 값이 우선한다.
-    baseSubject: z.string(),
-    baseBody: z.string(),
-    fields: z.array(fieldDefinition).min(1, "필드가 최소 1개 필요합니다"),
+    baseSubject: z.string({ error: "baseSubject 가 없습니다 (기본 메일 제목)" }),
+    baseBody: z.string({ error: "baseBody 가 없습니다 (기본 메일 본문)" }),
+    fields: z
+      .array(fieldDefinition, { error: "fields 가 없습니다 (입력 필드 목록)" })
+      .min(1, "필드가 최소 1개 필요합니다"),
     // 수신자 입력 위치. panel = 값 입력 폼 안, gmail = Gmail 초안 패널
     recipient: z
       .object({

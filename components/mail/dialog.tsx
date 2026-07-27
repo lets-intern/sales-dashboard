@@ -21,6 +21,11 @@ export interface DialogRequest {
   confirmText?: string;
   cancelText?: string;
   tone?: DialogTone;
+  /**
+   * 되돌릴 수 없는 동작에 쓴다. 이 문구를 그대로 입력해야 확인 버튼이 열린다.
+   * 버튼 하나로 끝나는 확인은 습관적으로 눌리기 때문에, 손이 한 번 멈추게 만든다.
+   */
+  requireText?: string;
 }
 
 interface PendingDialog extends DialogRequest {
@@ -73,7 +78,9 @@ export function confirmDialog(
 
 export function DialogHost() {
   const [dialog, setDialog] = useState<PendingDialog | null>(current);
+  const [typed, setTyped] = useState("");
   const confirmRef = useRef<HTMLButtonElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     listeners.add(setDialog);
@@ -83,17 +90,24 @@ export function DialogHost() {
   }, []);
 
   useEffect(() => {
-    if (dialog) confirmRef.current?.focus();
+    setTyped("");
+    if (!dialog) return;
+    // 확인 문구를 받아야 하면 입력칸에, 아니면 확인 버튼에 포커스를 준다.
+    if (dialog.requireText) inputRef.current?.focus();
+    else confirmRef.current?.focus();
   }, [dialog]);
+
+  const textOk = !dialog?.requireText || typed.trim() === dialog.requireText;
 
   const onKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       if (!dialog) return;
       if (e.key === "Escape") close(false);
       // 확인 창에서 Enter 는 진행. 알림 창은 버튼이 하나라 어느 쪽이든 닫힌다.
-      if (e.key === "Enter") close(true);
+      // 확인 문구를 요구하는 창은 문구가 맞을 때만 Enter 가 통한다.
+      if (e.key === "Enter" && textOk) close(true);
     },
-    [dialog]
+    [dialog, textOk]
   );
 
   if (!dialog) return null;
@@ -116,6 +130,24 @@ export function DialogHost() {
       >
         {dialog.title && <h2 className="dlg-title">{dialog.title}</h2>}
         <p className="dlg-message">{dialog.message}</p>
+
+        {dialog.requireText && (
+          <label className="dlg-confirm-text">
+            <span>
+              계속하려면 <b>{dialog.requireText}</b> 를 그대로 입력하세요.
+            </span>
+            <input
+              ref={inputRef}
+              type="text"
+              value={typed}
+              autoComplete="off"
+              spellCheck={false}
+              placeholder={dialog.requireText}
+              onChange={(e) => setTyped(e.target.value)}
+            />
+          </label>
+        )}
+
         <div className="dlg-actions">
           {dialog.confirm && (
             <button type="button" className="mg-btn" onClick={() => close(false)}>
@@ -128,6 +160,7 @@ export function DialogHost() {
             className={`mg-btn ${
               dialog.tone === "danger" ? "dlg-danger" : "mg-btn-primary"
             }`}
+            disabled={!textOk}
             onClick={() => close(true)}
           >
             {dialog.confirmText ?? (dialog.confirm ? "진행" : "확인")}

@@ -16,6 +16,8 @@ import {
   parseGeneratorDefinition,
 } from "@/lib/mail/generators/definition";
 import {
+  deleteGenerator,
+  generatorFootprint,
   loadGenerators,
   setGeneratorEnabled,
   upsertGenerator,
@@ -64,7 +66,13 @@ export default function GeneratorsPage() {
           setDraft(pretty(first.definition));
         }
       } catch (e) {
-        if (!cancelled) setStatus(`불러오지 못했습니다: ${(e as Error).message}`);
+        if (!cancelled) {
+          setStatus("");
+          await alertDialog(
+            `생성기 목록을 불러오지 못했습니다.\n${(e as Error).message}`,
+            { title: "불러오기 실패", tone: "danger" }
+          );
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -81,11 +89,17 @@ export default function GeneratorsPage() {
     setStatus("");
   };
 
-  const startNew = () => {
+  const startNew = async () => {
     setSelected(null);
     setDraft(newDefinitionDraft());
     setErrors([]);
     setStatus("새 생성기입니다. key 와 label 을 바꾸고 저장하세요.");
+    await alertDialog(
+      "콜드메일 정의를 복제해 편집기에 넣었습니다.\n\n" +
+        "key 와 label 을 바꾼 뒤 저장하세요. key 는 템플릿·기본값·저장 기록을 묶는 " +
+        "이름이라 저장한 뒤에는 바꾸기 어렵습니다.",
+      { title: "새 생성기" }
+    );
   };
 
   const validate = async () => {
@@ -163,6 +177,62 @@ export default function GeneratorsPage() {
     }
   };
 
+  const remove = async (row: LoadedGenerator) => {
+    const label = row.definition.label;
+    let footprint;
+    try {
+      footprint = await generatorFootprint(createClient(), row.key);
+    } catch (e) {
+      await alertDialog(
+        `삭제 범위를 확인하지 못했습니다.\n${(e as Error).message}`,
+        { title: "삭제 준비 실패", tone: "danger" }
+      );
+      return;
+    }
+
+    const removed = [
+      `생성기 정의 (${row.key})`,
+      `템플릿 ${footprint.slots}개 — 제목·본문 전부`,
+      footprint.hasDefaults ? "베이스 템플릿(기본값)과 되돌리기용 백업" : null,
+      footprint.hasFieldValues ? "마지막으로 입력했던 값" : null,
+    ].filter(Boolean);
+
+    const ok = await confirmDialog(
+      `"${label}" 을(를) 삭제합니다. 되돌릴 수 없습니다.\n\n` +
+        `함께 지워지는 것\n${removed.map((r) => `  · ${r}`).join("\n")}\n\n` +
+        `남는 것\n  · 임시보관함 저장 기록 ${footprint.draftLogs}건\n` +
+        `    (어디에 무엇을 보냈는지의 기록이라 지우지 않습니다)\n\n` +
+        `감추기만 해도 탭에서는 보이지 않습니다. 되살릴 생각이 조금이라도 있으면 ` +
+        `삭제 대신 감추기를 쓰세요.`,
+      {
+        title: "생성기 삭제",
+        confirmText: "삭제",
+        tone: "danger",
+        requireText: "삭제하겠습니다",
+      }
+    );
+    if (!ok) return;
+
+    try {
+      await deleteGenerator(createClient(), row.key);
+      const result = await refresh();
+      if (selected === row.key) {
+        const first = result.generators[0];
+        setSelected(first?.key ?? null);
+        setDraft(first ? pretty(first.definition) : "");
+        setErrors([]);
+      }
+      setStatus("");
+      await alertDialog(`"${label}" 을(를) 삭제했습니다.`, { title: "삭제 완료" });
+    } catch (e) {
+      setStatus("");
+      await alertDialog(`삭제하지 못했습니다.\n${(e as Error).message}`, {
+        title: "삭제 실패",
+        tone: "danger",
+      });
+    }
+  };
+
   const toggleEnabled = async (row: LoadedGenerator) => {
     const next = !row.enabled;
     const ok = await confirmDialog(
@@ -179,9 +249,19 @@ export default function GeneratorsPage() {
     try {
       await setGeneratorEnabled(createClient(), row.key, next);
       await refresh();
-      setStatus(next ? "다시 표시합니다." : "탭에서 감췄습니다.");
+      setStatus("");
+      await alertDialog(
+        next
+          ? `"${row.definition.label}" 을(를) 다시 표시합니다.`
+          : `"${row.definition.label}" 을(를) 탭에서 감췄습니다.`,
+        { title: "변경 완료" }
+      );
     } catch (e) {
-      setStatus(`변경 실패: ${(e as Error).message}`);
+      setStatus("");
+      await alertDialog(`변경하지 못했습니다.\n${(e as Error).message}`, {
+        title: "변경 실패",
+        tone: "danger",
+      });
     }
   };
 
@@ -243,6 +323,13 @@ export default function GeneratorsPage() {
                       onClick={() => toggleEnabled(row)}
                     >
                       {row.enabled ? "감추기" : "표시"}
+                    </button>
+                    <button
+                      type="button"
+                      className="mg-btn gen-delete"
+                      onClick={() => remove(row)}
+                    >
+                      삭제
                     </button>
                   </li>
                 ))}

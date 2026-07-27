@@ -127,6 +127,86 @@ export async function seedGeneratorsIfEmpty(
   return true;
 }
 
+// ── 삭제 ─────────────────────────────────────────────────────
+// 생성기 하나에 딸린 데이터가 얼마나 되는지 센다. 삭제 창에서 범위를 보여주기 위한 것.
+export interface GeneratorFootprint {
+  slots: number;
+  hasDefaults: boolean;
+  hasFieldValues: boolean;
+  /** 저장 기록은 지우지 않는다. 남는 건수를 알리기 위해 센다. */
+  draftLogs: number;
+}
+
+async function countRows(
+  supabase: SupabaseClient,
+  table: string,
+  key: string
+): Promise<number> {
+  const { count, error } = await supabase
+    .from(table)
+    .select("generator", { count: "exact", head: true })
+    .eq("generator", key);
+  if (error) throw error;
+  return count ?? 0;
+}
+
+export async function generatorFootprint(
+  supabase: SupabaseClient,
+  key: string
+): Promise<GeneratorFootprint> {
+  const [slots, defaults, fieldValues, draftLogs] = await Promise.all([
+    countRows(supabase, "mail_slots", key),
+    countRows(supabase, "mail_defaults", key),
+    countRows(supabase, "mail_field_values", key),
+    countRows(supabase, "mail_draft_logs", key).catch(() => 0),
+  ]);
+  return {
+    slots,
+    hasDefaults: defaults > 0,
+    hasFieldValues: fieldValues > 0,
+    draftLogs,
+  };
+}
+
+export class GeneratorDeleteBlockedError extends Error {
+  constructor() {
+    super(
+      "삭제 권한이 없어 지우지 못했습니다. supabase/migration_mail_generator_delete.sql 을 실행해 주세요."
+    );
+    this.name = "GeneratorDeleteBlockedError";
+  }
+}
+
+// 생성기와 그에 딸린 템플릿·기본값·입력값을 지운다. 저장 기록은 남긴다.
+//
+// RLS 는 권한이 없어도 에러 없이 0건 삭제로 끝난다. 그래서 지운 뒤 실제로 사라졌는지
+// 반드시 확인한다 — 이걸 빼면 "지웠다고 했는데 그대로"인 상태를 만든다.
+export async function deleteGenerator(
+  supabase: SupabaseClient,
+  key: string
+): Promise<void> {
+  const { error } = await supabase
+    .from(GENERATORS_TABLE)
+    .delete()
+    .eq("key", key);
+  if (error) throw error;
+
+  const { data, error: checkError } = await supabase
+    .from(GENERATORS_TABLE)
+    .select("key")
+    .eq("key", key)
+    .maybeSingle();
+  if (checkError) throw checkError;
+  if (data) throw new GeneratorDeleteBlockedError();
+
+  // 정의가 지워진 뒤에야 딸린 데이터를 지운다. 순서가 반대면 정의 삭제가 막혔을 때
+  // 데이터만 날아간 생성기가 남는다.
+  for (const table of ["mail_slots", "mail_defaults", "mail_field_values"]) {
+    const { error: e } = await supabase.from(table).delete().eq("generator", key);
+    if (e) throw e;
+  }
+}
+
 // 탭에 그릴 목록. enabled 만, sort_order 순.
 export const visibleGenerators = (result: LoadResult): LoadedGenerator[] =>
   result.generators
