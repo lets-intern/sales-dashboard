@@ -1,0 +1,101 @@
+{
+  "key": "e2e-test",
+  "label": "E2E 테스트",
+  "baseSubject": "[{{회사명}}] {{직무표시}} 제안 — {{제안마감일}}까지 회신 부탁드립니다",
+  "baseBody": "<div>{{회사명}} {{담당자명}}님, 안녕하세요.</div><div>렛츠커리어입니다.</div><div><br></div><div>{{회사명}}[은/는] {{직무표시}} 채용을 준비 중이신 것으로 알고 있습니다.</div><div>아래 내용을 검토해 주시면 감사하겠습니다.</div><div><br></div><div>-----</div><div><br></div><div><b>제안 요약</b></div><div>선정 이유: {{선정이유}}</div><div>강조 사항: {{강조문구}}</div><div><br></div><div><b>집계 결과</b></div><div>조회 기간: {{조회기간}} ({{조회기간축약}})</div><div>방문자 수: {{방문자수}}</div><div><br></div><div>-----</div><div><br></div><div>회신 마감은 <b>{{제안마감일}}</b>({{제안마감일전체}}) 이며, 오늘 기준 {{디데이}} 입니다.</div><div>편하신 시간에 회신 주시면 바로 이어서 안내드리겠습니다.</div><div><br></div><div>감사합니다.</div>",
+  "fields": [
+    {
+      "id": "companyName",
+      "name": "회사명",
+      "type": "text",
+      "placeholder": "예: 렛츠커리어",
+      "josa": true,
+      "counterparty": true
+    },
+    {
+      "id": "managerName",
+      "name": "담당자명",
+      "type": "text",
+      "placeholder": "예: 김은아"
+    },
+    {
+      "id": "jobField",
+      "name": "선정이유",
+      "label": "직무 분야",
+      "type": "select",
+      "compact": true,
+      "also": {
+        "label": "직무표시"
+      },
+      "options": [
+        {
+          "label": "마케팅",
+          "value": "마케팅 직무 공고를 다수 운영해 온 이력이 있어 제안드립니다"
+        },
+        {
+          "label": "개발",
+          "value": "개발 직군 채용에서 성과가 확인되어 제안드립니다"
+        },
+        {
+          "label": "디자인",
+          "value": "디자인 직군 지원자 풀이 두터워 제안드립니다"
+        }
+      ]
+    },
+    {
+      "id": "highlight",
+      "name": "강조문구",
+      "label": "강조 사항",
+      "type": "select",
+      "compact": true,
+      "rawHtml": true,
+      "options": [
+        {
+          "label": "빠른 진행",
+          "value": "<b>24시간 내 소재 제작</b> 가능"
+        },
+        {
+          "label": "타겟 정확도",
+          "value": "<b>고관여 주니어 DB</b> 보유"
+        }
+      ]
+    },
+    {
+      "id": "dueDate",
+      "name": "제안마감일",
+      "label": "제안 마감일",
+      "type": "date",
+      "format": "short",
+      "compact": true,
+      "also": {
+        "full": "제안마감일전체",
+        "dday": "디데이"
+      }
+    },
+    {
+      "id": "stat",
+      "name": "조회기간",
+      "label": "조회 기간",
+      "type": "period",
+      "compact": true,
+      "also": {
+        "compact": "조회기간축약"
+      }
+    },
+    {
+      "id": "visitors",
+      "name": "방문자수",
+      "label": "방문자 수",
+      "type": "text",
+      "placeholder": "예: 1,240명",
+      "compact": true
+    }
+  ],
+  "recipient": {
+    "placement": "gmail",
+    "validated": false
+  },
+  "attachment": {
+    "kind": null
+  }
+}

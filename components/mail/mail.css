@@ -1,0 +1,892 @@
+/* 메일 생성기 스타일. 앱 디자인 토큰(--ink/--accent/--line 등) 재사용.
+   프로토타입 intern.css 를 앱 톤에 맞게 재정렬. 클래스는 mg- 프리픽스로 격리. */
+
+.mg-root {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 4px 0 40px;
+}
+
+.mg-panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 18px 20px;
+  margin-bottom: 16px;
+}
+
+.mg-h2 {
+  font-size: 14px;
+  margin: 0 0 12px;
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.mg-h2-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.mg-h2-row .mg-h2 {
+  margin: 0;
+}
+
+/* 지금 어떤 템플릿을 편집 중인지 알려주는 배지. 선택 UI 는 템플릿 메뉴에 있다. */
+.mg-active-slot {
+  flex-shrink: 0;
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: 999px;
+}
+
+.mg-sub {
+  color: var(--ink-2);
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+/* ── 슬롯 ── */
+.mg-slot-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.mg-slot-btn {
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--surface-2);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+.mg-slot-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+.mg-slot-btn.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.mg-slot-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── 툴바 / 에디터 ── */
+.mg-toolbar {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.mg-toolbar button {
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--surface-2);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+}
+.mg-toolbar button:hover {
+  border-color: var(--accent);
+}
+
+.mg-editor {
+  width: 100%;
+  min-height: 160px;
+  max-height: 280px;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.6;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow-y: auto;
+  white-space: normal;
+  resize: vertical;
+  background: var(--surface);
+}
+.mg-editor:focus {
+  outline: 2px solid var(--accent-soft);
+}
+.mg-result-box {
+  min-height: 200px;
+  max-height: 340px;
+  background: var(--surface-2);
+}
+
+/* 기본값 수정 중 강조 */
+.mg-editor.editing-default,
+.mg-subject-input.editing-default {
+  border-color: var(--s-amber-fg);
+  background: var(--s-amber-bg);
+}
+
+/* ── 폼 ── */
+.mg-form-grid {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.mg-field {
+  flex: 1;
+  min-width: 200px;
+}
+.mg-field-compact {
+  flex: 0 1 220px;
+  min-width: 0;
+}
+.mg-field label {
+  display: block;
+  font-size: 12px;
+  color: var(--ink-2);
+  margin-bottom: 4px;
+}
+.mg-field input,
+.mg-field select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: inherit;
+  background: var(--surface);
+}
+.mg-field input:focus,
+.mg-field select:focus {
+  outline: 2px solid var(--accent-soft);
+  border-color: var(--accent);
+}
+
+/* ── 제목 입력/결과 ── */
+.mg-subject-input {
+  width: 100%;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  resize: vertical;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  background: var(--surface);
+}
+.mg-subject-input:focus {
+  outline: 2px solid var(--accent-soft);
+  border-color: var(--accent);
+}
+.mg-subject-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+.mg-subject-row .mg-subject-input {
+  flex: 1;
+}
+
+/* ── 버튼 / 액션 ── */
+.mg-btn {
+  cursor: pointer;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--surface-2);
+  color: var(--ink);
+  white-space: nowrap;
+}
+.mg-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+.mg-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.mg-btn-primary {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.mg-btn-primary:hover:not(:disabled) {
+  opacity: 0.92;
+}
+
+.mg-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.mg-status {
+  font-size: 12px;
+  color: var(--ink-3);
+  margin-right: auto;
+}
+.mg-status-inline {
+  margin-top: 8px;
+}
+.mg-result-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 14px 0 8px;
+}
+.mg-result-actions label {
+  font-size: 12px;
+  color: var(--ink-2);
+}
+
+/* ── 템플릿 메뉴 ──
+   기본형은 본문 위 가로 바(좁은 화면). 여백이 충분하면 본문 왼쪽에 세로로 띄운다.
+   임계값은 본문 980px + 양쪽에 패널 1개가 들어갈 폭으로 잡는다. */
+.tm-root {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 12px 14px;
+  margin: 0 auto 16px;
+  max-width: 980px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+}
+
+.tm-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+.tm-head b {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-2);
+}
+
+.tm-collapse,
+.tm-reopen {
+  font-size: 11px;
+  color: var(--ink-3);
+  background: none;
+  border: none;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+.tm-collapse:hover,
+.tm-reopen:hover {
+  color: var(--accent);
+  background: var(--line-2);
+}
+
+.tm-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+/* 항목 = 이름 + 보조 액션. 액션 자리는 항상 확보해 두고 표시만 토글한다.
+   (hover 때 자리가 생기면 이름이 밀려 목록 전체가 흔들린다.) */
+.tm-item {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 4px 2px 2px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.tm-item:hover {
+  border-color: var(--line);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+.tm-item:has(.tm-select.active) {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.tm-select {
+  min-width: 0;
+  max-width: 200px;
+  text-align: left;
+  padding: 5px 8px;
+  font-size: 13px;
+  font-weight: 500;
+  background: none;
+  color: var(--ink-2);
+  border: none;
+  border-radius: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tm-select:hover:not(:disabled) {
+  color: var(--ink);
+}
+.tm-select.active {
+  color: var(--accent);
+  font-weight: 700;
+}
+.tm-select:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* 가로 바에서는 자리를 잡아두면 칩마다 빈 여백이 생겨 폭이 들쭉날쭉해진다.
+   여기서는 접었다가 hover 때 펼친다(세로 패널에서는 반대로 자리를 고정한다). */
+.tm-item-actions {
+  display: none;
+  gap: 1px;
+}
+.tm-item:hover .tm-item-actions,
+.tm-item:focus-within .tm-item-actions {
+  display: flex;
+}
+
+.tm-icon {
+  padding: 4px 5px;
+  font-size: 10px;
+  line-height: 1.2;
+  color: var(--ink-3);
+  background: none;
+  border: none;
+  border-radius: 4px;
+}
+.tm-icon:hover:not(:disabled) {
+  background: var(--surface);
+  color: var(--ink);
+}
+.tm-icon:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+.tm-danger:hover:not(:disabled) {
+  background: var(--s-red-bg);
+  color: var(--s-red-fg);
+}
+
+.tm-rename-input {
+  max-width: 200px;
+  padding: 5px 8px;
+  font-size: 13px;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.tm-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.tm-btn {
+  padding: 7px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  background: var(--surface-2);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+}
+.tm-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.tm-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.tm-btn-primary {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.tm-btn-primary:hover:not(:disabled) {
+  color: #fff;
+  opacity: 0.88;
+}
+
+.tm-note {
+  display: none; /* 가로 바에서는 숨기고, 세로 패널에서만 보여준다 */
+}
+
+.tm-status {
+  margin: 0;
+  flex-basis: 100%;
+  font-size: 11px;
+  color: var(--accent);
+}
+
+.tm-reopen {
+  display: block;
+  margin: 0 auto 12px;
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+
+/* 본문(980px) 왼쪽에 200px 패널 + 여백이 들어갈 때만 세로로 띄운다. */
+@media (min-width: 1440px) {
+  .tm-root {
+    position: fixed;
+    top: 78px;
+    left: calc(50% - 710px);
+    width: 200px;
+    max-width: none;
+    margin: 0;
+    max-height: calc(100vh - 108px);
+    overflow-y: auto;
+    display: block;
+    padding: 12px;
+    z-index: 20;
+  }
+
+  .tm-head {
+    justify-content: space-between;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--line-2);
+  }
+
+  .tm-list {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 4px;
+    margin-bottom: 10px;
+  }
+  .tm-item {
+    justify-content: space-between;
+  }
+  /* 세로 목록에서는 액션 자리를 늘 확보해 hover 때 이름이 밀리지 않게 한다. */
+  .tm-item-actions {
+    display: flex;
+    visibility: hidden;
+  }
+  .tm-item:hover .tm-item-actions,
+  .tm-item:focus-within .tm-item-actions {
+    visibility: visible;
+  }
+  .tm-select {
+    flex: 1;
+    max-width: none;
+  }
+  .tm-rename-input {
+    width: 100%;
+    max-width: none;
+  }
+
+  .tm-actions {
+    flex-direction: column;
+    padding-top: 10px;
+    border-top: 1px solid var(--line-2);
+  }
+  .tm-btn {
+    white-space: normal;
+    line-height: 1.35;
+  }
+
+  .tm-note {
+    display: block;
+    margin: 8px 0 0;
+    font-size: 11px;
+    line-height: 1.45;
+    color: var(--ink-3);
+    /* 한국어는 어절 단위로 끊어야 "시작합니 / 다." 같은 낱글자 고아가 안 생긴다 */
+    word-break: keep-all;
+  }
+  .tm-status {
+    margin-top: 6px;
+  }
+
+  .tm-reopen {
+    position: fixed;
+    top: 78px;
+    left: calc(50% - 710px);
+    margin: 0;
+    border-radius: 7px;
+    box-shadow: var(--shadow);
+    z-index: 20;
+  }
+}
+
+/* ── 임시보관함 저장 기록 (/mail/log) ── */
+.dl-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.dl-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 200px;
+}
+.dl-field.dl-narrow {
+  flex: 0 0 auto;
+  min-width: 0;
+  width: 150px;
+}
+.dl-field > span {
+  font-size: 11px;
+  color: var(--ink-2);
+}
+.dl-field input,
+.dl-field select {
+  padding: 8px 10px;
+  font-size: 13px;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+}
+.dl-field input:focus,
+.dl-field select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.dl-error {
+  color: var(--s-red-fg);
+  background: var(--s-red-bg);
+  border-color: var(--s-red-bg);
+  font-size: 13px;
+  word-break: keep-all;
+}
+
+/* 넓은 표는 카드 안에서만 가로 스크롤한다(페이지 전체가 밀리지 않게). */
+.dl-table-wrap {
+  overflow-x: auto;
+}
+
+.dl-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.dl-table th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-3);
+  padding: 0 10px 8px;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+.dl-table td {
+  padding: 10px;
+  border-bottom: 1px solid var(--line-2);
+  vertical-align: top;
+}
+.dl-table tbody tr {
+  cursor: pointer;
+}
+.dl-table tbody tr:hover {
+  background: var(--surface-2);
+}
+.dl-table tbody tr.expanded {
+  background: var(--accent-soft);
+}
+
+.dl-when {
+  white-space: nowrap;
+  color: var(--ink-2);
+}
+.dl-counterparty {
+  font-weight: 600;
+  white-space: nowrap;
+}
+.dl-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  color: var(--ink-2);
+}
+.dl-subject {
+  min-width: 260px;
+}
+
+.dl-detail {
+  margin: 10px 0 0;
+  padding: 10px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 6px 16px;
+  font-size: 12px;
+}
+.dl-detail div {
+  display: flex;
+  gap: 6px;
+}
+.dl-detail dt {
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+.dl-detail dd {
+  margin: 0;
+  color: var(--ink);
+  word-break: break-all;
+}
+
+/* ── 경고 배너 (생성기 로드 실패·정의 오류) ── */
+.mg-warning {
+  max-width: 980px;
+  margin: 0 auto 16px;
+  padding: 12px 14px;
+  background: var(--s-amber-bg);
+  color: var(--s-amber-fg);
+  border: 1px solid var(--s-amber-bg);
+  border-radius: var(--radius);
+  font-size: 13px;
+  line-height: 1.5;
+  word-break: keep-all;
+}
+.mg-warning ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+.mg-warning li {
+  margin-top: 4px;
+  word-break: break-all;
+}
+
+/* ── 생성기 관리 (/mail/generators) ── */
+.gen-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.gen-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.gen-select {
+  flex: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  text-align: left;
+  padding: 10px 12px;
+  font-size: 13px;
+  background: var(--surface-2);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+}
+.gen-select:hover {
+  border-color: var(--accent);
+}
+.gen-select.active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.gen-key {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  color: var(--ink-3);
+}
+.gen-hidden {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--s-gray-fg);
+  background: var(--s-gray-bg);
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+
+.gen-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.gen-editor {
+  width: 100%;
+  min-height: 420px;
+  padding: 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--ink);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  resize: vertical;
+  white-space: pre;
+  tab-size: 2;
+}
+.gen-editor:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.gen-errors {
+  max-width: none;
+  margin: 12px 0 0;
+  background: var(--s-red-bg);
+  color: var(--s-red-fg);
+  border-color: var(--s-red-bg);
+}
+
+.gen-help {
+  margin-top: 10px;
+  word-break: keep-all;
+}
+.gen-help code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  background: var(--line-2);
+  border-radius: 4px;
+  padding: 1px 4px;
+}
+
+/* ── 알림·확인 창 ── */
+.dlg-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(20, 20, 26, 0.32);
+  animation: dlg-fade 0.12s ease;
+}
+
+.dlg-card {
+  width: 100%;
+  max-width: 420px;
+  padding: 22px 24px 18px;
+  background: var(--surface);
+  border-radius: 14px;
+  box-shadow: 0 8px 16px -8px rgba(20, 20, 26, 0.2),
+    0 24px 48px -16px rgba(20, 20, 26, 0.28);
+  animation: dlg-rise 0.14s ease;
+}
+
+.dlg-title {
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/* 문구에 줄바꿈을 그대로 살린다. 확인 창은 대개 여러 줄로 설명한다. */
+.dlg-message {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink-2);
+  white-space: pre-wrap;
+  word-break: keep-all;
+}
+
+.dlg-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 20px;
+}
+.dlg-actions .mg-btn {
+  min-width: 76px;
+  justify-content: center;
+  text-align: center;
+}
+
+.dlg-danger {
+  background: var(--s-red-fg);
+  color: #fff;
+  border-color: var(--s-red-fg);
+}
+.dlg-danger:hover:not(:disabled) {
+  color: #fff;
+  opacity: 0.9;
+}
+
+@keyframes dlg-fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes dlg-rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+/* 되돌릴 수 없는 동작에서 확인 문구를 받는 입력칸 */
+.dlg-confirm-text {
+  display: block;
+  margin-top: 16px;
+}
+.dlg-confirm-text > span {
+  display: block;
+  font-size: 12px;
+  color: var(--ink-2);
+  margin-bottom: 6px;
+  word-break: keep-all;
+}
+.dlg-confirm-text > span b {
+  color: var(--s-red-fg);
+  font-weight: 700;
+}
+.dlg-confirm-text input {
+  width: 100%;
+  padding: 9px 11px;
+  font-size: 13px;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+}
+.dlg-confirm-text input:focus {
+  outline: none;
+  border-color: var(--s-red-fg);
+  box-shadow: 0 0 0 3px var(--s-red-bg);
+}
+
+.gen-delete {
+  color: var(--s-red-fg);
+}
+.gen-delete:hover:not(:disabled) {
+  background: var(--s-red-bg);
+  border-color: var(--s-red-fg);
+  color: var(--s-red-fg);
+}
