@@ -58,6 +58,13 @@ describe("AI 프롬프트", () => {
     expect(GENERATOR_PROMPT).toContain('"counterparty": true');
   });
 
+  it("코드블록으로 출력하라고 요구한다", () => {
+    // 일반 대화 텍스트로 주면 따옴표가 곡선 따옴표로 바뀌고 줄맞춤이 어긋나
+    // 복사해 붙여넣을 수 없다. 실제로 겪은 문제라 프롬프트에서 반드시 막아야 한다.
+    expect(GENERATOR_PROMPT).toContain("```json 코드블록");
+    expect(GENERATOR_PROMPT).toContain("곡선 따옴표");
+  });
+
   it("새 생성기에 validated:true 를 쓰지 말라고 경고한다", () => {
     // panel-state.ts 가 sales 필드 id 에 하드코딩되어 있어 새 생성기에서는 동작하지 않는다.
     expect(GENERATOR_PROMPT).toContain("validated:true 는 기존 콜드메일 생성기 전용");

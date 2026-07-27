@@ -1,10 +1,25 @@
 // 생성기 정의 검증 — 손으로 쓰는 JSON 이라 실패 사유가 읽을 수 있어야 한다.
 
 import { describe, it, expect } from "vitest";
-import { parseGeneratorDefinition } from "../definition";
+import { normalizePastedJson, parseGeneratorDefinition } from "../definition";
 import { salesDefinition } from "../seed";
 
 const valid = () => JSON.parse(JSON.stringify(salesDefinition));
+
+describe("normalizePastedJson", () => {
+  it("코드펜스를 벗긴다", () => {
+    expect(normalizePastedJson('```json\n{"a":1}\n```')).toBe('{"a":1}');
+    expect(normalizePastedJson('```\n{"a":1}\n```')).toBe('{"a":1}');
+  });
+
+  it("펜스가 없으면 그대로 둔다", () => {
+    expect(normalizePastedJson('  {"a":1}  ')).toBe('{"a":1}');
+  });
+
+  it("본문 안의 백틱은 건드리지 않는다", () => {
+    expect(normalizePastedJson('{"a":"``x``"}')).toBe('{"a":"``x``"}');
+  });
+});
 
 describe("parseGeneratorDefinition", () => {
   it("올바른 정의를 통과시킨다", () => {
@@ -15,6 +30,25 @@ describe("parseGeneratorDefinition", () => {
   it("JSON 문자열도 받는다", () => {
     const result = parseGeneratorDefinition(JSON.stringify(valid()));
     expect(result.ok).toBe(true);
+  });
+
+  it("코드펜스가 함께 복사돼도 받아 준다", () => {
+    // AI 가 ```json 블록으로 주므로 통째로 복사하면 펜스가 딸려 온다.
+    const fenced = "```json\n" + JSON.stringify(valid(), null, 2) + "\n```";
+    expect(parseGeneratorDefinition(fenced).ok).toBe(true);
+    expect(parseGeneratorDefinition("```\n" + JSON.stringify(valid()) + "\n```").ok).toBe(true);
+  });
+
+  it("대화창이 바꿔 놓은 곡선 따옴표를 되돌린다", () => {
+    const curly = JSON.stringify(valid())
+      .replace(/"/g, "\u201C")
+      .replace(/\u201C(?=[,:}\]])/g, "\u201D");
+    expect(parseGeneratorDefinition(curly).ok).toBe(true);
+  });
+
+  it("줄바꿈 없는 공백이 섞여도 받아 준다", () => {
+    const nbsp = JSON.stringify(valid(), null, 2).replace(/ /g, "\u00A0");
+    expect(parseGeneratorDefinition(nbsp).ok).toBe(true);
   });
 
   it("JSON 이 아니면 그 사실을 알린다", () => {
