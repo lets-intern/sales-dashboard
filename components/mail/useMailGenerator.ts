@@ -32,6 +32,7 @@ import {
   type SlotNumber,
 } from "@/lib/mail/types";
 import type { GeneratorConfig } from "@/lib/mail/configs/types";
+import { confirmDialog } from "./dialog";
 
 interface SlotContent {
   subject: string;
@@ -395,7 +396,7 @@ export function useMailGenerator(
   );
 
   const removeSlot = useCallback(
-    (slot: SlotNumber) => {
+    async (slot: SlotNumber) => {
       if (slotLocked) return;
       const list = slotsRef.current;
       if (list.length <= 1) return; // 마지막 1개는 삭제하지 않는다
@@ -404,8 +405,9 @@ export function useMailGenerator(
         slot,
         list.find((s) => s.slot === slot)?.name
       );
-      const ok = window.confirm(
-        `"${label}"을(를) 삭제할까요?\n저장된 제목·본문이 함께 지워지며 되돌릴 수 없습니다.`
+      const ok = await confirmDialog(
+        `"${label}"을(를) 삭제할까요?\n저장된 제목·본문이 함께 지워지며 되돌릴 수 없습니다.`,
+        { title: "템플릿 삭제", confirmText: "삭제", tone: "danger" }
       );
       if (!ok) return;
 
@@ -476,9 +478,10 @@ export function useMailGenerator(
     setSubjectStatus('기본값을 수정하는 중입니다. "기본값 저장"을 눌러야 실제로 바뀝니다.');
   }, [editingSubjectDefault, subject, currentDefaultSubject]);
 
-  const saveSubjectDefault = useCallback(() => {
-    const ok = window.confirm(
-      '현재 내용으로 기본값을 저장하시겠습니까?\n기존 기본값은 새 내용으로 대체됩니다. (이전 기본값은 "기본값 되돌리기"로 복원할 수 있습니다.)'
+  const saveSubjectDefault = useCallback(async () => {
+    const ok = await confirmDialog(
+      '현재 내용으로 기본값을 저장할까요?\n기존 기본값은 새 내용으로 대체됩니다. 이전 기본값은 "기본값 되돌리기"로 복원할 수 있습니다.',
+      { title: "기본값 저장", confirmText: "저장" }
     );
     if (!ok) return;
     const newDefault = subject;
@@ -501,9 +504,12 @@ export function useMailGenerator(
     setSubjectStatus("기본값 수정을 취소했습니다.");
   }, []);
 
-  const revertSubjectDefault = useCallback(() => {
+  const revertSubjectDefault = useCallback(async () => {
     if (subjectBackup === null) return;
-    const ok = window.confirm("기본값을 바로 이전 값으로 되돌리시겠습니까?");
+    const ok = await confirmDialog("기본값을 바로 이전 값으로 되돌릴까요?", {
+      title: "기본값 되돌리기",
+      confirmText: "되돌리기",
+    });
     if (!ok) return;
     const current = currentDefaultSubject;
     setSubjectOverride(subjectBackup);
@@ -525,9 +531,10 @@ export function useMailGenerator(
     setBodyStatus('기본값을 수정하는 중입니다. "기본값 저장"을 눌러야 실제로 바뀝니다.');
   }, [editingBodyDefault, body, currentDefaultBody]);
 
-  const saveBodyDefault = useCallback(() => {
-    const ok = window.confirm(
-      '현재 내용으로 기본값을 저장하시겠습니까?\n기존 기본값은 새 내용으로 대체됩니다. (이전 기본값은 "기본값 되돌리기"로 복원할 수 있습니다.)'
+  const saveBodyDefault = useCallback(async () => {
+    const ok = await confirmDialog(
+      '현재 내용으로 기본값을 저장할까요?\n기존 기본값은 새 내용으로 대체됩니다. 이전 기본값은 "기본값 되돌리기"로 복원할 수 있습니다.',
+      { title: "기본값 저장", confirmText: "저장" }
     );
     if (!ok) return;
     const newDefault = body;
@@ -550,9 +557,12 @@ export function useMailGenerator(
     setBodyStatus("기본값 수정을 취소했습니다.");
   }, []);
 
-  const revertBodyDefault = useCallback(() => {
+  const revertBodyDefault = useCallback(async () => {
     if (bodyBackup === null) return;
-    const ok = window.confirm("기본값을 바로 이전 값으로 되돌리시겠습니까?");
+    const ok = await confirmDialog("기본값을 바로 이전 값으로 되돌릴까요?", {
+      title: "기본값 되돌리기",
+      confirmText: "되돌리기",
+    });
     if (!ok) return;
     const current = currentDefaultBody;
     setBodyOverride(bodyBackup);

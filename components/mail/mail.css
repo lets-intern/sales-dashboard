@@ -657,3 +657,196 @@
   color: var(--ink);
   word-break: break-all;
 }
+
+/* ── 경고 배너 (생성기 로드 실패·정의 오류) ── */
+.mg-warning {
+  max-width: 980px;
+  margin: 0 auto 16px;
+  padding: 12px 14px;
+  background: var(--s-amber-bg);
+  color: var(--s-amber-fg);
+  border: 1px solid var(--s-amber-bg);
+  border-radius: var(--radius);
+  font-size: 13px;
+  line-height: 1.5;
+  word-break: keep-all;
+}
+.mg-warning ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+.mg-warning li {
+  margin-top: 4px;
+  word-break: break-all;
+}
+
+/* ── 생성기 관리 (/mail/generators) ── */
+.gen-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.gen-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.gen-select {
+  flex: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  text-align: left;
+  padding: 10px 12px;
+  font-size: 13px;
+  background: var(--surface-2);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+}
+.gen-select:hover {
+  border-color: var(--accent);
+}
+.gen-select.active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.gen-key {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  color: var(--ink-3);
+}
+.gen-hidden {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--s-gray-fg);
+  background: var(--s-gray-bg);
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+
+.gen-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.gen-editor {
+  width: 100%;
+  min-height: 420px;
+  padding: 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--ink);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  resize: vertical;
+  white-space: pre;
+  tab-size: 2;
+}
+.gen-editor:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.gen-errors {
+  max-width: none;
+  margin: 12px 0 0;
+  background: var(--s-red-bg);
+  color: var(--s-red-fg);
+  border-color: var(--s-red-bg);
+}
+
+.gen-help {
+  margin-top: 10px;
+  word-break: keep-all;
+}
+.gen-help code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  background: var(--line-2);
+  border-radius: 4px;
+  padding: 1px 4px;
+}
+
+/* ── 알림·확인 창 ── */
+.dlg-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(20, 20, 26, 0.32);
+  animation: dlg-fade 0.12s ease;
+}
+
+.dlg-card {
+  width: 100%;
+  max-width: 420px;
+  padding: 22px 24px 18px;
+  background: var(--surface);
+  border-radius: 14px;
+  box-shadow: 0 8px 16px -8px rgba(20, 20, 26, 0.2),
+    0 24px 48px -16px rgba(20, 20, 26, 0.28);
+  animation: dlg-rise 0.14s ease;
+}
+
+.dlg-title {
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/* 문구에 줄바꿈을 그대로 살린다. 확인 창은 대개 여러 줄로 설명한다. */
+.dlg-message {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink-2);
+  white-space: pre-wrap;
+  word-break: keep-all;
+}
+
+.dlg-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 20px;
+}
+.dlg-actions .mg-btn {
+  min-width: 76px;
+  justify-content: center;
+  text-align: center;
+}
+
+.dlg-danger {
+  background: var(--s-red-fg);
+  color: #fff;
+  border-color: var(--s-red-fg);
+}
+.dlg-danger:hover:not(:disabled) {
+  color: #fff;
+  opacity: 0.9;
+}
+
+@keyframes dlg-fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes dlg-rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}

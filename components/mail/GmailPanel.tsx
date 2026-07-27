@@ -27,6 +27,7 @@ import {
   type GmailTokenState,
 } from "@/lib/mail/gmail/oauth";
 import { insertDraftLog } from "@/lib/mail/draftLog";
+import { alertDialog, confirmDialog } from "./dialog";
 import {
   createDraft,
   GmailTokenExpiredError,
@@ -170,7 +171,11 @@ export default function GmailPanel({ ctrl, config }: GmailPanelProps) {
         lastSentRef.current
       );
       for (const guard of guards) {
-        const proceed = window.confirm(`${guard.message}\n\n계속 진행하시겠습니까?`);
+        const proceed = await confirmDialog(`${guard.message}\n\n계속 진행할까요?`, {
+          title: "저장 전 확인",
+          confirmText: "진행",
+          tone: "danger",
+        });
         if (!proceed) return;
       }
     }
