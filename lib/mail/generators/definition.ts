@@ -246,12 +246,33 @@ export type ParseResult =
   | { ok: true; definition: GeneratorDefinition }
   | ParseFailure;
 
+// 붙여넣기로 들어온 텍스트를 JSON.parse 가 받을 수 있는 형태로 다듬는다.
+//
+// AI 답변이나 문서를 거쳐 오면 원문 그대로 오지 않는다. 실제로 겪은 것들:
+//  - ```json 코드펜스가 함께 복사된다
+//  - 대화창이 따옴표를 곡선 따옴표(“ ” ‘ ’)로 바꿔 놓는다
+//  - 줄바꿈 자리에 줄바꿈 없는 공백(U+00A0)이 섞인다
+// 내용이 아니라 전달 경로 때문에 깨지는 것이므로, 되돌릴 수 있는 만큼은 되돌린다.
+export function normalizePastedJson(text: string): string {
+  let out = text.trim();
+
+  // 앞뒤 코드펜스 제거 (```json ... ``` / ``` ... ```)
+  const fence = out.match(/^```[a-zA-Z]*\s*\n([\s\S]*?)\n?```$/);
+  if (fence) out = fence[1].trim();
+
+  return out
+    .replace(/[\u201C\u201D]/g, '"') // “ ” → "
+    .replace(/[\u2018\u2019]/g, "'") // ‘ ’ → '
+    .replace(/\u00A0/g, " ") // 줄바꿈 없는 공백 → 보통 공백
+    .replace(/\u200B/g, ""); // 폭 없는 공백 제거
+}
+
 // JSON 문자열 또는 객체를 검증한다. 실패 사유는 사람이 읽을 수 있는 문장으로 돌려준다.
 export function parseGeneratorDefinition(input: unknown): ParseResult {
   let value = input;
   if (typeof input === "string") {
     try {
-      value = JSON.parse(input);
+      value = JSON.parse(normalizePastedJson(input));
     } catch (e) {
       return { ok: false, errors: [`JSON 형식이 아닙니다: ${(e as Error).message}`] };
     }
