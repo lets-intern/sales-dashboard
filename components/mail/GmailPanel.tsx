@@ -114,7 +114,11 @@ export default function GmailPanel({ ctrl, config }: GmailPanelProps) {
   const onLogin = useCallback(async () => {
     const supabase = supabaseRef.current;
     if (!supabase) {
-      setLoginStatus("Supabase 설정이 필요합니다 (.env.local).");
+      setLoginStatus("Supabase 설정이 필요합니다 (.env).");
+      await alertDialog(
+        "Supabase 설정이 없어 Google 로그인을 시작할 수 없습니다.\n.env 의 NEXT_PUBLIC_SUPABASE_URL / ANON_KEY 를 확인해 주세요.",
+        { title: "설정 필요", tone: "danger" }
+      );
       return;
     }
     try {
@@ -125,6 +129,10 @@ export default function GmailPanel({ ctrl, config }: GmailPanelProps) {
       );
     } catch (e) {
       setLoginStatus(`로그인 실패: ${(e as Error).message}`);
+      await alertDialog(`Google 로그인에 실패했습니다.\n${(e as Error).message}`, {
+        title: "로그인 실패",
+        tone: "danger",
+      });
     }
   }, []);
 
@@ -248,13 +256,26 @@ export default function GmailPanel({ ctrl, config }: GmailPanelProps) {
           programName: (ctrl.fieldValues.programName ?? "").trim(),
         };
       }
+      await alertDialog(
+        `받는사람: ${to}\n제목: ${ctrl.resultSubject}\n\n` +
+          `발송되지 않았습니다. Gmail 임시보관함에서 확인한 뒤 직접 보내세요.`,
+        { title: "임시보관함에 저장했습니다" }
+      );
     } catch (e) {
       if (e instanceof GmailTokenExpiredError) {
         setTokenState(LOGGED_OUT);
         setLoginStatus("로그인이 만료되었습니다. 다시 로그인해 주세요.");
         setDraftStatus("토큰이 만료되어 저장하지 못했습니다. 다시 로그인해 주세요.");
+        await alertDialog(
+          "Google 로그인이 만료되어 저장하지 못했습니다.\n다시 로그인한 뒤 저장해 주세요.",
+          { title: "로그인 만료", tone: "danger" }
+        );
       } else {
         setDraftStatus(`저장 실패: ${(e as Error).message}`);
+        await alertDialog(
+          `임시보관함에 저장하지 못했습니다.\n${(e as Error).message}`,
+          { title: "저장 실패", tone: "danger" }
+        );
       }
     } finally {
       setSaving(false);
