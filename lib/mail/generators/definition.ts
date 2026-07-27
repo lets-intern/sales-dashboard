@@ -52,6 +52,9 @@ const baseField = {
   josa: z.boolean().optional(),
   // 값의 HTML 을 이스케이프하지 않고 그대로 삽입할지 (예: <b> 가 든 문구)
   rawHtml: z.boolean().optional(),
+  // 이 필드가 "메일을 받는 상대"의 이름인지(고객사명/회사명/기관명).
+  // 임시보관함 저장 로그가 이 값으로 기록·검색된다. 생성기당 1개.
+  counterparty: z.boolean().optional(),
   // 치환에 쓰지 않고 입력만 받는 필드는 false. (예: 받는사람 이메일 — 본문에 넣는 값이
   // 아니라 Gmail 초안 패널이 쓰는 값이다.) 기본은 true.
   output: z.boolean().default(true),
@@ -200,6 +203,15 @@ export const generatorDefinition = z
         add(name, i, order === 0 ? "" : " (부가 출력)");
       });
     });
+
+    const counterparties = def.fields.filter((f) => f.counterparty);
+    if (counterparties.length > 1) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["fields"],
+        message: "상대 이름(counterparty) 필드는 1개만 지정할 수 있습니다",
+      });
+    }
 
     // 필드 id 중복은 폼 상태가 서로 덮인다.
     const ids = new Set<string>();

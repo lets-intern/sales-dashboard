@@ -61,7 +61,7 @@ export const salesDefinition: GeneratorDefinition = validated({
   baseSubject: salesConfig.factorySubject,
   baseBody: salesConfig.factoryBody,
   fields: [
-    { id: "clientName", name: "고객사명", type: "text", placeholder: "예: 연세 IT 미래교육원", josa: true },
+    { id: "clientName", name: "고객사명", type: "text", placeholder: "예: 연세 IT 미래교육원", josa: true, counterparty: true },
     { id: "programName", name: "교육프로그램명", type: "text", placeholder: "예: 노코드 AI 서비스 개발자2기", josa: true },
     {
       id: "deadline",
@@ -104,7 +104,7 @@ export const internDefinition: GeneratorDefinition = validated({
   baseSubject: internConfig.factorySubject,
   baseBody: internConfig.factoryBody,
   fields: [
-    { id: "companyName", name: "회사명", type: "text", placeholder: "예: 렛츠커리어", josa: true },
+    { id: "companyName", name: "회사명", type: "text", placeholder: "예: 렛츠커리어", josa: true, counterparty: true },
     {
       id: "jobFieldReason",
       name: "선정이유",
@@ -141,7 +141,7 @@ export const activityDefinition: GeneratorDefinition = validated({
   baseSubject: activityConfig.factorySubject,
   baseBody: activityConfig.factoryBody,
   fields: [
-    { id: "institutionName", name: "기관명", type: "text", placeholder: "예: 렛츠커리어", josa: true },
+    { id: "institutionName", name: "기관명", type: "text", placeholder: "예: 렛츠커리어", josa: true, counterparty: true },
     {
       id: "activityFieldReason",
       name: "선정이유",

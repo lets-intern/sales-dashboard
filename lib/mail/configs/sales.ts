@@ -290,6 +290,7 @@ export const salesConfig: GeneratorConfig = {
     };
   },
   // sales 는 받는사람 이메일을 검증한다(validated: true). 입력 위치/게이트는 Gmail 패널(Push 5).
+  counterpartyFieldId: "clientName",
   recipient: { placement: "gmail", validated: true },
   // sales 는 PDF 등 파일 첨부(온드미디어 상품 안내서). 본문 이미지 placeholder 없음.
   attachment: { kind: "files" },

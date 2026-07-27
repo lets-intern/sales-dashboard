@@ -154,6 +154,7 @@ export function compileGenerator(def: GeneratorDefinition): GeneratorConfig {
     computeValues: buildComputeValues(def.fields),
     recipient: def.recipient,
     attachment: def.attachment,
+    counterpartyFieldId: def.fields.find((f) => f.counterparty)?.id,
   };
 }
 

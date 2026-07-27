@@ -533,3 +533,127 @@
     z-index: 20;
   }
 }
+
+/* ── 임시보관함 저장 기록 (/mail/log) ── */
+.dl-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.dl-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 200px;
+}
+.dl-field.dl-narrow {
+  flex: 0 0 auto;
+  min-width: 0;
+  width: 150px;
+}
+.dl-field > span {
+  font-size: 11px;
+  color: var(--ink-2);
+}
+.dl-field input,
+.dl-field select {
+  padding: 8px 10px;
+  font-size: 13px;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+}
+.dl-field input:focus,
+.dl-field select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.dl-error {
+  color: var(--s-red-fg);
+  background: var(--s-red-bg);
+  border-color: var(--s-red-bg);
+  font-size: 13px;
+  word-break: keep-all;
+}
+
+/* 넓은 표는 카드 안에서만 가로 스크롤한다(페이지 전체가 밀리지 않게). */
+.dl-table-wrap {
+  overflow-x: auto;
+}
+
+.dl-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.dl-table th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-3);
+  padding: 0 10px 8px;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+.dl-table td {
+  padding: 10px;
+  border-bottom: 1px solid var(--line-2);
+  vertical-align: top;
+}
+.dl-table tbody tr {
+  cursor: pointer;
+}
+.dl-table tbody tr:hover {
+  background: var(--surface-2);
+}
+.dl-table tbody tr.expanded {
+  background: var(--accent-soft);
+}
+
+.dl-when {
+  white-space: nowrap;
+  color: var(--ink-2);
+}
+.dl-counterparty {
+  font-weight: 600;
+  white-space: nowrap;
+}
+.dl-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  color: var(--ink-2);
+}
+.dl-subject {
+  min-width: 260px;
+}
+
+.dl-detail {
+  margin: 10px 0 0;
+  padding: 10px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 6px 16px;
+  font-size: 12px;
+}
+.dl-detail div {
+  display: flex;
+  gap: 6px;
+}
+.dl-detail dt {
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+.dl-detail dd {
+  margin: 0;
+  color: var(--ink);
+  word-break: break-all;
+}

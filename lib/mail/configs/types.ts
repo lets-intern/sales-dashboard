@@ -49,4 +49,7 @@ export interface GeneratorConfig {
   recipient: { placement: "panel" | "gmail"; validated: boolean };
   // 첨부 종류 + 본문 내 이미지 placeholder 문구
   attachment: { kind: "files" | "image" | null; placeholderText?: string };
+  // 메일을 받는 상대를 가리키는 필드 id (고객사명/회사명/기관명).
+  // 임시보관함 저장 로그에서 "어디에 보냈는지" 를 이 값으로 기록·검색한다.
+  counterpartyFieldId?: string;
 }

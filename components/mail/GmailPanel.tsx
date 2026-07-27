@@ -26,6 +26,7 @@ import {
   signOutGoogle,
   type GmailTokenState,
 } from "@/lib/mail/gmail/oauth";
+import { insertDraftLog } from "@/lib/mail/draftLog";
 import {
   createDraft,
   GmailTokenExpiredError,
@@ -215,6 +216,24 @@ export default function GmailPanel({ ctrl, config }: GmailPanelProps) {
       }
 
       await createDraft(tokenState.token, input);
+
+      // 저장 기록. 실패해도 초안은 이미 만들어졌으므로 되돌리지 않고 넘어간다.
+      const supabaseForLog = supabaseRef.current;
+      if (supabaseForLog) {
+        const counterpartyId = config.counterpartyFieldId;
+        insertDraftLog(supabaseForLog, {
+          generator: config.key,
+          generator_label: config.label,
+          slot: ctrl.active,
+          slot_name: ctrl.activeName,
+          counterparty: counterpartyId
+            ? (ctrl.fieldValues[counterpartyId] ?? "").trim()
+            : "",
+          recipient: to,
+          subject: ctrl.resultSubject,
+          field_values: ctrl.fieldValues,
+        }).catch(() => {});
+      }
 
       setDraftStatus(`임시보관함에 저장되었습니다. (받는사람: ${to})`);
       if (validated) {

@@ -208,6 +208,7 @@ export const activityConfig: GeneratorConfig = {
       일반콘텐츠조회수: t(state.organicViews),
     };
   },
+  counterpartyFieldId: "institutionName",
   recipient: { placement: "gmail", validated: false },
   attachment: { kind: "image", placeholderText: ACTIVITY_IMAGE_PLACEHOLDER },
 };

@@ -205,6 +205,7 @@ export const internConfig: GeneratorConfig = {
       일반콘텐츠조회수: t(state.organicViews),
     };
   },
+  counterpartyFieldId: "companyName",
   recipient: { placement: "gmail", validated: false },
   attachment: { kind: "image", placeholderText: INTERN_IMAGE_PLACEHOLDER },
 };

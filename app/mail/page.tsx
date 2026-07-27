@@ -55,6 +55,9 @@ export default function MailPage() {
           ))}
         </div>
         <div className="spacer" />
+        <Link className="tab" href="/mail/log">
+          저장 기록
+        </Link>
         <Link className="tab" href="/">
           ← 대시보드
         </Link>
