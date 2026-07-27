@@ -2,9 +2,9 @@
 // 저장되는 JSON 과 1:1 이다. 생성기 추가 = 이 스키마를 만족하는 JSON 한 벌 추가.
 //
 // 설계 원칙
-// 1) 필드 하나 = 플레이스홀더 하나. 필드의 label 이 곧 플레이스홀더 이름이다.
+// 1) 필드 하나 = 플레이스홀더 하나. 필드의 name 이 곧 플레이스홀더 이름이다.
 //    ({{회사명}} 을 쓰려면 name 이 "회사명" 인 필드를 만든다.)
-//    예외는 period 뿐 — 시작·종료 두 입력이 한 덩어리라 축약형을 함께 낸다.
+//    같은 입력을 다른 표기로 한 번 더 써야 하면 also 에 이름을 명시한다(암묵 규칙 없음).
 // 2) 계산식은 없다. 값 변환은 전부 "형식 선택"으로 표현한다(date.format).
 // 3) 코드를 고쳐야 하는 건 필드 "타입"을 새로 만들 때뿐이다. 생성기 추가는 데이터.
 
@@ -52,7 +52,39 @@ const baseField = {
   josa: z.boolean().optional(),
   // 값의 HTML 을 이스케이프하지 않고 그대로 삽입할지 (예: <b> 가 든 문구)
   rawHtml: z.boolean().optional(),
+  // 치환에 쓰지 않고 입력만 받는 필드는 false. (예: 받는사람 이메일 — 본문에 넣는 값이
+  // 아니라 Gmail 초안 패널이 쓰는 값이다.) 기본은 true.
+  output: z.boolean().default(true),
 };
+
+// 부가 출력. 필드 하나가 플레이스홀더 하나를 내는 게 기본이고, 같은 입력을 다른
+// 표기로 한 번 더 써야 할 때만 여기에 이름을 적는다. 적지 않으면 만들어지지 않는다.
+// 값 변환은 여전히 "형식 선택"뿐이며 계산식은 없다.
+// 부가 출력 하나. 이름만 주거나, 조사·HTML 처리를 따로 지정할 수 있다.
+// (조사 처리는 필드가 아니라 "그 플레이스홀더가 본문에서 조사와 붙어 쓰이는지"의 문제라
+//  기본 출력과 부가 출력이 서로 다를 수 있다.)
+const alsoOutput = z.union([
+  placeholderName,
+  z.object({
+    name: placeholderName,
+    josa: z.boolean().optional(),
+    rawHtml: z.boolean().optional(),
+  }),
+]);
+export type AlsoOutput = z.infer<typeof alsoOutput>;
+
+const alsoDate = z
+  .object({
+    full: alsoOutput.optional(),
+    short: alsoOutput.optional(),
+    weekday: alsoOutput.optional(),
+    dday: alsoOutput.optional(),
+  })
+  .optional();
+
+const alsoPeriod = z.object({ compact: alsoOutput.optional() }).optional();
+
+const alsoSelect = z.object({ label: alsoOutput.optional() }).optional();
 
 const fieldDefinition = z.discriminatedUnion("type", [
   z.object({
@@ -71,25 +103,56 @@ const fieldDefinition = z.discriminatedUnion("type", [
     ...baseField,
     type: z.literal("select"),
     options: z.array(selectOption).min(1, "드롭다운은 옵션이 1개 이상이어야 합니다"),
+    // name 은 선택한 옵션의 value 를 낸다. 표시 이름(label)도 쓰려면 also.label 에 이름을 준다.
+    also: alsoSelect,
   }),
   z.object({
     ...baseField,
     type: z.literal("date"),
     format: z.enum(DATE_FORMATS).default("short"),
+    also: alsoDate,
   }),
   z.object({
-    // 시작·종료 두 날짜를 한 덩어리로 받는다.
-    // name 이 "통계기간" 이면 {{통계기간}} 과 {{통계기간축약}} 을 함께 내보낸다.
+    // 시작·종료 두 날짜를 한 덩어리로 받는다. name 은 full 표기를 낸다.
     ...baseField,
     type: z.literal("period"),
+    also: alsoPeriod,
   }),
 ]);
 
 export type FieldDefinition = z.infer<typeof fieldDefinition>;
 
-// period 가 만들어 내는 축약형 플레이스홀더 이름 규칙.
-export const COMPACT_SUFFIX = "축약";
-export const compactPlaceholder = (label: string) => `${label}${COMPACT_SUFFIX}`;
+// 부가 출력의 이름만 꺼낸다.
+export const alsoName = (value: AlsoOutput): string =>
+  typeof value === "string" ? value : value.name;
+
+export interface FieldOutput {
+  name: string;
+  josa: boolean;
+  rawHtml: boolean;
+}
+
+// 필드가 실제로 만들어 내는 플레이스홀더 전부(기본 + 부가).
+export function fieldOutputs(field: FieldDefinition): FieldOutput[] {
+  if (!field.output) return [];
+  const list: FieldOutput[] = [
+    { name: field.name, josa: !!field.josa, rawHtml: !!field.rawHtml },
+  ];
+  if ("also" in field && field.also) {
+    for (const value of Object.values(field.also)) {
+      if (!value) continue;
+      list.push(
+        typeof value === "string"
+          ? { name: value, josa: false, rawHtml: false }
+          : { name: value.name, josa: !!value.josa, rawHtml: !!value.rawHtml }
+      );
+    }
+  }
+  return list;
+}
+
+export const outputNames = (field: FieldDefinition): string[] =>
+  fieldOutputs(field).map((o) => o.name);
 
 export const generatorDefinition = z
   .object({
@@ -133,10 +196,9 @@ export const generatorDefinition = z
       seen.set(name, index);
     };
     def.fields.forEach((f, i) => {
-      add(f.name, i, "");
-      if (f.type === "period") {
-        add(compactPlaceholder(f.name), i, " (period 가 자동으로 만드는 축약형)");
-      }
+      outputNames(f).forEach((name, order) => {
+        add(name, i, order === 0 ? "" : " (부가 출력)");
+      });
     });
 
     // 필드 id 중복은 폼 상태가 서로 덮인다.
@@ -154,6 +216,10 @@ export const generatorDefinition = z
   });
 
 export type GeneratorDefinition = z.infer<typeof generatorDefinition>;
+
+// 손으로 적을 때 쓰는 타입. 기본값이 있는 항목(output/format/recipient/attachment)을
+// 생략할 수 있다. 스키마를 통과시키면 GeneratorDefinition 이 된다.
+export type GeneratorDefinitionInput = z.input<typeof generatorDefinition>;
 
 export interface ParseFailure {
   ok: false;

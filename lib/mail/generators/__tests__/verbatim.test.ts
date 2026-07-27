@@ -168,12 +168,21 @@ describe.each(cases)("$name — JSON 정의 이관 후 동등성", (c) => {
   });
 
   it("조사 처리 대상이 같다", () => {
-    // 기존 josaVars 중 템플릿이 쓰지 않는 select 라벨(직무명·활동분야)은 제외된다.
-    const used = c.config.josaVars.filter((v) =>
-      c.config.factoryBody.includes(`{{${v}}}`) ||
-      c.config.factorySubject.includes(`{{${v}}}`)
+    expect(new Set(compiled.josaVars)).toEqual(new Set(c.config.josaVars));
+  });
+
+  it("만들어 내는 플레이스홀더가 하나도 빠지지 않는다", () => {
+    // 지금 템플릿이 쓰지 않는 것(모집마감일전체·마감요일·디데이·직무명·활동분야)도
+    // 나중에 본문을 고칠 때 필요하므로 전부 유지해야 한다.
+    expect(new Set(Object.keys(compiled.computeValues(c.compiledState)))).toEqual(
+      new Set(Object.keys(c.config.computeValues(c.legacyState)))
     );
-    expect(new Set(compiled.josaVars)).toEqual(new Set(used));
+  });
+
+  it("플레이스홀더 값이 전부 같다", () => {
+    expect(compiled.computeValues(c.compiledState)).toEqual(
+      c.config.computeValues(c.legacyState)
+    );
   });
 
   it("HTML 원본 삽입 대상이 같다", () => {

@@ -9,7 +9,8 @@ import { dateParts, computeDeadlineInfo, computeStatPeriod } from "../engine/for
 import type { FieldDef, FieldType, GeneratorConfig } from "../configs/types";
 import type { GeneratorKey } from "../types";
 import {
-  compactPlaceholder,
+  alsoName,
+  fieldOutputs,
   type DateFormat,
   type FieldDefinition,
   type GeneratorDefinition,
@@ -90,17 +91,29 @@ function buildComputeValues(fields: FieldDefinition[]) {
     const out: Record<string, string> = {};
 
     for (const field of fields) {
+      // 입력 전용 필드는 치환값을 만들지 않는다.
+      if (!field.output) continue;
+
       switch (field.type) {
-        case "date":
-          out[field.name] = formatDate(trim(state[field.id]), field.format);
+        case "date": {
+          const value = trim(state[field.id]);
+          out[field.name] = formatDate(value, field.format);
+          // 같은 날짜를 다른 표기로도 쓰는 경우(예: 마감일의 요일·D-day).
+          if (field.also) {
+            for (const [format, also] of Object.entries(field.also)) {
+              if (also) out[alsoName(also)] = formatDate(value, format as DateFormat);
+            }
+          }
           break;
+        }
         case "period": {
           const period = computeStatPeriod(
             trim(state[periodStartKey(field.id)]),
             trim(state[periodEndKey(field.id)])
           );
           out[field.name] = period.full;
-          out[compactPlaceholder(field.name)] = period.compact;
+          if (field.also?.compact)
+            out[alsoName(field.also.compact)] = period.compact;
           break;
         }
         case "select": {
@@ -109,6 +122,9 @@ function buildComputeValues(fields: FieldDefinition[]) {
           const selected =
             field.options.find((o) => o.value === raw) ?? field.options[0];
           out[field.name] = selected.value;
+          // 옵션의 표시 이름도 따로 쓰는 경우(예: 직무명 / 활동분야).
+          if (field.also?.label)
+            out[alsoName(field.also.label)] = selected.label;
           break;
         }
         default:
@@ -121,8 +137,10 @@ function buildComputeValues(fields: FieldDefinition[]) {
 }
 
 export function compileGenerator(def: GeneratorDefinition): GeneratorConfig {
-  const josaVars = def.fields.filter((f) => f.josa).map((f) => f.name);
-  const rawHtmlKeys = def.fields.filter((f) => f.rawHtml).map((f) => f.name);
+  // josa/rawHtml 은 플레이스홀더 단위 속성이다(기본 출력과 부가 출력이 다를 수 있다).
+  const outputs = def.fields.flatMap(fieldOutputs);
+  const josaVars = outputs.filter((o) => o.josa).map((o) => o.name);
+  const rawHtmlKeys = outputs.filter((o) => o.rawHtml).map((o) => o.name);
 
   return {
     key: def.key as GeneratorKey,
