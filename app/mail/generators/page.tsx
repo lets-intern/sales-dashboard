@@ -153,9 +153,12 @@ export default function GeneratorsPage() {
     setStatus("저장 중...");
     try {
       const supabase = createClient();
-      const order = selected
-        ? rows.find((r) => r.key === selected)?.sortOrder
-        : rows.length;
+      // 새 key 는 맨 뒤로 보낸다. 편집 중이던 생성기의 순서를 물려받으면
+      // 기존 생성기와 sort_order 가 겹쳐 탭 순서가 뒤죽박죽이 된다.
+      const isNew = !selected || result.definition.key !== selected;
+      const order = isNew
+        ? Math.max(-1, ...rows.map((r) => r.sortOrder)) + 1
+        : rows.find((r) => r.key === selected)?.sortOrder ?? rows.length;
       await upsertGenerator(supabase, result.definition.key, result.definition, {
         sortOrder: order ?? rows.length,
         enabled: true,

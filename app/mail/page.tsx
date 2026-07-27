@@ -9,9 +9,14 @@
 //
 // 저장소에 닿지 못하면 코드 시드로 그냥 뜬다. 내부 도구라 "DB가 안 되면 아무것도 못 쓴다"
 // 보다 "저장은 안 되지만 메일은 만든다"가 낫다.
+//
+// 선택한 탭은 URL(?generator=key)에 둔다. Google 로그인이 전체 리다이렉트로 돌아오기
+// 때문에(GmailPanel 이 redirectTo 로 현재 URL 을 넘긴다) 탭이 메모리에만 있으면
+// 로그인 후 첫 탭으로 되돌아간다. 다른 생성기에서 값을 채우고 로그인한 사람은
+// 엉뚱한 탭에서 초안을 만들게 된다.
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import MailGenerator from "@/components/mail/MailGenerator";
 import { createClient } from "@/utils/supabase/client";
 import {
@@ -41,7 +46,20 @@ export default function MailPage() {
   const [broken, setBroken] = useState<BrokenGenerator[]>([]);
   const [loadError, setLoadError] = useState("");
   const [loading, setLoading] = useState(true);
-  const [activeKey, setActiveKey] = useState<string | null>(null);
+  const [activeKey, setActiveKeyState] = useState<string | null>(null);
+
+  // URL 에서 초기 탭을 읽는다(로그인 리다이렉트 복귀 포함).
+  useEffect(() => {
+    const key = new URLSearchParams(window.location.search).get("generator");
+    if (key) setActiveKeyState(key);
+  }, []);
+
+  const setActiveKey = useCallback((key: string) => {
+    setActiveKeyState(key);
+    const url = new URL(window.location.href);
+    url.searchParams.set("generator", key);
+    window.history.replaceState(null, "", url);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
