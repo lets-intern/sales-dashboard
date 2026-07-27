@@ -16,26 +16,51 @@ import {
   createDebouncer,
   loadSlots,
   upsertSlot,
+  renameSlot as renameSlotRow,
+  deleteSlot as deleteSlotRow,
+  nextSlotNumber,
+  isEmptySlot,
   loadDefaults,
   saveDefault,
   loadFieldValues,
   saveFieldValues,
 } from "@/lib/mail/storage";
-import type { DefaultKind, SlotNumber } from "@/lib/mail/types";
+import {
+  INITIAL_SLOT_NUMBERS,
+  slotDisplayName,
+  type DefaultKind,
+  type SlotNumber,
+} from "@/lib/mail/types";
 import type { GeneratorConfig } from "@/lib/mail/configs/types";
-
-const SLOTS: SlotNumber[] = [1, 2, 3, 4, 5];
 
 interface SlotContent {
   subject: string;
   body: string;
 }
 
+// 목록에 표시되는 템플릿 1개. 이름이 빈 문자열이면 "템플릿 N" 으로 표시한다.
+export interface SlotMeta {
+  slot: SlotNumber;
+  name: string;
+}
+
+const seedSlots = (): SlotMeta[] =>
+  INITIAL_SLOT_NUMBERS.map((slot) => ({ slot, name: "" }));
+
 export interface MailController {
-  slots: SlotNumber[];
+  slots: SlotMeta[];
   active: SlotNumber;
+  activeName: string;
   slotLocked: boolean;
   switchSlot: (n: SlotNumber) => void;
+
+  // 템플릿 관리(플로팅 메뉴)
+  addSlot: () => void;
+  saveCurrentAsSlot: () => void;
+  renameSlot: (slot: SlotNumber, name: string) => void;
+  removeSlot: (slot: SlotNumber) => void;
+  canRemoveSlot: boolean;
+  slotStatus: string;
 
   subject: string;
   setSubject: (v: string) => void;
@@ -84,7 +109,9 @@ export function useMailGenerator(
   }
   const debouncerRef = useRef(createDebouncer(300));
 
+  const [slots, setSlots] = useState<SlotMeta[]>(seedSlots);
   const [active, setActive] = useState<SlotNumber>(1);
+  const [slotStatus, setSlotStatus] = useState("");
   const [subject, setSubjectState] = useState(config.factorySubject);
   const [body, setBodyState] = useState(config.factoryBody);
   const [fieldValues, setFieldValues] = useState<Record<string, string>>(
@@ -158,9 +185,35 @@ export function useMailGenerator(
               body: row.body,
             };
           }
-          const first = slotCache.current[1];
-          setSubjectState(first?.subject ?? defSubject);
-          setBodyState(first?.body ?? defBody);
+
+          // "행이 존재하면 그 템플릿이 존재한다"가 목록의 기준이다.
+          // 아직 한 번도 쓰지 않은 생성기라면 시드 5개를 실제 행으로 만들어 둔다.
+          // (행이 있어야 이름을 붙이고 삭제할 수 있다.)
+          if (slotRows.length === 0) {
+            await Promise.all(
+              INITIAL_SLOT_NUMBERS.map((slot) =>
+                upsertSlot(
+                  supabase,
+                  { generator: config.key, slot, subject: "", body: "", name: "" },
+                  true
+                ).catch(() => {})
+              )
+            );
+            if (cancelled) return;
+            setSlots(seedSlots());
+          } else {
+            setSlots(
+              slotRows.map((r) => ({ slot: r.slot, name: r.name ?? "" }))
+            );
+          }
+
+          const first = slotCache.current[slotRows[0]?.slot ?? 1];
+          const firstActive = slotRows[0]?.slot ?? 1;
+          setActive(firstActive);
+          const hasContent =
+            first && !isEmptySlot(first.subject, first.body);
+          setSubjectState(hasContent ? first.subject : defSubject);
+          setBodyState(hasContent ? first.body : defBody);
 
           if (fv && Object.keys(fv).length > 0) {
             setFieldValues((prev) => ({ ...prev, ...fv }));
@@ -193,6 +246,16 @@ export function useMailGenerator(
     [config.key]
   );
 
+  // 콜백에서 최신 슬롯 목록을 읽기 위한 ref (stale 방지)
+  const slotsRef = useRef(slots);
+  slotsRef.current = slots;
+
+  const nameOf = useCallback(
+    (n: SlotNumber) =>
+      slotDisplayName(n, slotsRef.current.find((s) => s.slot === n)?.name),
+    []
+  );
+
   const scheduleSlotSave = useCallback(
     (content: SlotContent) => {
       slotCache.current[active] = content;
@@ -200,11 +263,11 @@ export function useMailGenerator(
       setBodyStatus("저장 중...");
       debouncerRef.current.schedule(`slot-${active}`, () => {
         persistSlot(active, content);
-        setSubjectStatus(`템플릿 ${active}번에 자동 저장됨`);
-        setBodyStatus(`템플릿 ${active}번에 자동 저장됨`);
+        setSubjectStatus(`${nameOf(active)}에 자동 저장됨`);
+        setBodyStatus(`${nameOf(active)}에 자동 저장됨`);
       });
     },
-    [active, persistSlot]
+    [active, persistSlot, nameOf]
   );
 
   // ── 제목/본문 편집 ────────────────────────────────────────
@@ -239,15 +302,138 @@ export function useMailGenerator(
       slotCache.current[active] = { subject, body };
       persistSlot(active, { subject, body });
 
+      // 내용이 비어 있는 템플릿은 베이스 템플릿(기본값) 내용으로 채워 시작한다.
       const target = slotCache.current[n];
       const d = defRef.current;
-      setSubjectState(target?.subject ?? d.subjectOverride ?? d.factorySubject);
-      setBodyState(target?.body ?? d.bodyOverride ?? d.factoryBody);
+      const hasContent = target && !isEmptySlot(target.subject, target.body);
+      setSubjectState(
+        hasContent ? target.subject : d.subjectOverride ?? d.factorySubject
+      );
+      setBodyState(hasContent ? target.body : d.bodyOverride ?? d.factoryBody);
       setActive(n);
-      setSubjectStatus(`템플릿 ${n}번`);
-      setBodyStatus(`템플릿 ${n}번`);
+      setSubjectStatus(nameOf(n));
+      setBodyStatus(nameOf(n));
     },
-    [slotLocked, active, subject, body, persistSlot]
+    [slotLocked, active, subject, body, persistSlot, nameOf]
+  );
+
+  // ── 템플릿 관리(추가/이름변경/삭제) ───────────────────────
+  // 현재 편집 중인 슬롯을 즉시 확정 저장한다(디바운스 대기 중인 내용 유실 방지).
+  const commitActive = useCallback(() => {
+    debouncerRef.current.cancel(`slot-${active}`);
+    slotCache.current[active] = { subject, body };
+    persistSlot(active, { subject, body });
+  }, [active, subject, body, persistSlot]);
+
+  // 새 슬롯을 만들고 그 슬롯으로 이동한다. content 가 곧 새 템플릿의 초기 내용이다.
+  const createSlot = useCallback(
+    (content: SlotContent, status: string) => {
+      if (slotLocked) return;
+      commitActive();
+
+      const n = nextSlotNumber(slotsRef.current.map((s) => s.slot));
+      const supabase = supabaseRef.current;
+      if (supabase && initialized.current) {
+        upsertSlot(
+          supabase,
+          {
+            generator: config.key,
+            slot: n,
+            subject: content.subject,
+            body: content.body,
+            name: "",
+          },
+          true
+        ).catch(() => {});
+      }
+
+      slotCache.current[n] = content;
+      setSlots((prev) => [...prev, { slot: n, name: "" }]);
+      setSubjectState(content.subject);
+      setBodyState(content.body);
+      setActive(n);
+      setSlotStatus(status);
+      setSubjectStatus(`템플릿 ${n}`);
+      setBodyStatus(`템플릿 ${n}`);
+    },
+    [slotLocked, commitActive, config.key]
+  );
+
+  // 새 템플릿 — 베이스 템플릿(기본값) 내용으로 시작한다.
+  const addSlot = useCallback(() => {
+    const d = defRef.current;
+    createSlot(
+      {
+        subject: d.subjectOverride ?? d.factorySubject,
+        body: d.bodyOverride ?? d.factoryBody,
+      },
+      "베이스 템플릿 내용으로 새 템플릿을 만들었습니다."
+    );
+  }, [createSlot]);
+
+  // 수정사항을 템플릿으로 저장 — 지금 편집 중인 내용을 새 템플릿으로 복제한다.
+  const saveCurrentAsSlot = useCallback(() => {
+    createSlot({ subject, body }, "현재 내용을 새 템플릿으로 저장했습니다.");
+  }, [createSlot, subject, body]);
+
+  const renameSlot = useCallback(
+    (slot: SlotNumber, name: string) => {
+      // 기본 표시명("템플릿 N")을 그대로 확정하면 이름 없음으로 되돌린다.
+      // 이름 입력창이 기본명으로 채워지므로, 확인만 눌러도 같은 값이 저장되는 걸 막는다.
+      const raw = name.trim();
+      const trimmed = raw === `템플릿 ${slot}` ? "" : raw;
+      setSlots((prev) =>
+        prev.map((s) => (s.slot === slot ? { ...s, name: trimmed } : s))
+      );
+      const supabase = supabaseRef.current;
+      if (supabase && initialized.current) {
+        renameSlotRow(supabase, config.key, slot, trimmed).catch(() => {});
+      }
+      setSlotStatus(`이름을 "${slotDisplayName(slot, trimmed)}"(으)로 바꿨습니다.`);
+    },
+    [config.key]
+  );
+
+  const removeSlot = useCallback(
+    (slot: SlotNumber) => {
+      if (slotLocked) return;
+      const list = slotsRef.current;
+      if (list.length <= 1) return; // 마지막 1개는 삭제하지 않는다
+
+      const label = slotDisplayName(
+        slot,
+        list.find((s) => s.slot === slot)?.name
+      );
+      const ok = window.confirm(
+        `"${label}"을(를) 삭제할까요?\n저장된 제목·본문이 함께 지워지며 되돌릴 수 없습니다.`
+      );
+      if (!ok) return;
+
+      debouncerRef.current.cancel(`slot-${slot}`);
+      delete slotCache.current[slot];
+      const remaining = list.filter((s) => s.slot !== slot);
+      setSlots(remaining);
+
+      const supabase = supabaseRef.current;
+      if (supabase && initialized.current) {
+        deleteSlotRow(supabase, config.key, slot).catch(() => {});
+      }
+
+      // 삭제한 슬롯을 보고 있었다면 남은 첫 슬롯으로 이동한다.
+      if (active === slot) {
+        const next = remaining[0];
+        const cached = slotCache.current[next.slot];
+        const d = defRef.current;
+        const hasContent = cached && !isEmptySlot(cached.subject, cached.body);
+        setSubjectState(
+          hasContent ? cached.subject : d.subjectOverride ?? d.factorySubject
+        );
+        setBodyState(hasContent ? cached.body : d.bodyOverride ?? d.factoryBody);
+        setActive(next.slot);
+      }
+      setSlotStatus(`"${label}"을(를) 삭제했습니다.`);
+    },
+    [slotLocked, active, config.key]
   );
 
   // ── 폼 값 ─────────────────────────────────────────────────
@@ -394,10 +580,20 @@ export function useMailGenerator(
   );
 
   return {
-    slots: SLOTS,
+    slots,
     active,
+    activeName: slotDisplayName(
+      active,
+      slots.find((s) => s.slot === active)?.name
+    ),
     slotLocked,
     switchSlot,
+    addSlot,
+    saveCurrentAsSlot,
+    renameSlot,
+    removeSlot,
+    canRemoveSlot: slots.length > 1,
+    slotStatus,
     subject,
     setSubject,
     body,

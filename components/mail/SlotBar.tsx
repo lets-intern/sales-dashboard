@@ -66,28 +66,12 @@ export default function SlotBar({ ctrl }: { ctrl: MailController }) {
   return (
     <>
       <div className="mg-panel">
-        <h2 className="mg-h2">템플릿 선택</h2>
-        <div className="mg-slot-row">
-          {ctrl.slots.map((n) => (
-            <button
-              key={n}
-              type="button"
-              className={`mg-slot-btn${ctrl.active === n ? " active" : ""}`}
-              disabled={ctrl.slotLocked}
-              onClick={() => ctrl.switchSlot(n)}
-            >
-              템플릿 {n}
-            </button>
-          ))}
+        <div className="mg-h2-row">
+          <h2 className="mg-h2">1. 메일 제목</h2>
+          <span className="mg-active-slot" title="편집 중인 템플릿">
+            {ctrl.activeName}
+          </span>
         </div>
-        <div className="mg-sub">
-          제목·본문(서식 포함)이 슬롯별로 각각 자동 저장됩니다. 번호를 누르면 그
-          템플릿을 불러옵니다.
-        </div>
-      </div>
-
-      <div className="mg-panel">
-        <h2 className="mg-h2">1. 메일 제목</h2>
         <textarea
           className={`mg-subject-input${
             ctrl.editingSubjectDefault ? " editing-default" : ""

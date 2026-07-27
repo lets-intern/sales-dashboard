@@ -44,24 +44,61 @@ export async function loadSlots(
 }
 
 // 슬롯 저장(upsert). 초기화 전 빈 내용은 저장하지 않는다(가드).
-// force=true 로 명시적 저장(예: 사용자가 의도적으로 비운 경우)을 허용한다.
+// force=true 로 명시적 저장(예: 슬롯 신규 생성, 사용자가 의도적으로 비운 경우)을 허용한다.
+// name 이 undefined 면 이름 컬럼은 건드리지 않는다(내용 자동 저장이 이름을 지우지 않도록).
 export async function upsertSlot(
   supabase: SupabaseClient,
   slot: MailSlot,
   force = false
 ): Promise<void> {
   if (!force && isEmptySlot(slot.subject, slot.body)) return;
-  const { error } = await supabase.from("mail_slots").upsert(
-    {
-      generator: slot.generator,
-      slot: slot.slot,
-      subject: slot.subject,
-      body: slot.body,
-      updated_at: nowIso(),
-    },
-    { onConflict: "generator,slot" }
-  );
+  const row: Record<string, unknown> = {
+    generator: slot.generator,
+    slot: slot.slot,
+    subject: slot.subject,
+    body: slot.body,
+    updated_at: nowIso(),
+  };
+  if (slot.name !== undefined) row.name = slot.name;
+  const { error } = await supabase
+    .from("mail_slots")
+    .upsert(row, { onConflict: "generator,slot" });
   if (error) throw error;
+}
+
+// 슬롯 이름만 변경한다. 내용은 건드리지 않는다.
+export async function renameSlot(
+  supabase: SupabaseClient,
+  generator: GeneratorKey,
+  slot: number,
+  name: string
+): Promise<void> {
+  const { error } = await supabase
+    .from("mail_slots")
+    .update({ name, updated_at: nowIso() })
+    .eq("generator", generator)
+    .eq("slot", slot);
+  if (error) throw error;
+}
+
+// 슬롯 삭제. 호출 측에서 "마지막 1개는 삭제 불가"를 보장한다.
+export async function deleteSlot(
+  supabase: SupabaseClient,
+  generator: GeneratorKey,
+  slot: number
+): Promise<void> {
+  const { error } = await supabase
+    .from("mail_slots")
+    .delete()
+    .eq("generator", generator)
+    .eq("slot", slot);
+  if (error) throw error;
+}
+
+// 다음에 쓸 슬롯 번호. 기존 번호와 겹치지 않도록 최대값 + 1 을 쓴다.
+// (중간이 비어도 재사용하지 않는다 — 번호가 이름 대용으로 읽히는 혼란을 피한다.)
+export function nextSlotNumber(existing: readonly number[]): number {
+  return existing.length === 0 ? 1 : Math.max(...existing) + 1;
 }
 
 // ── 기본값(mail_defaults) ────────────────────────────────────

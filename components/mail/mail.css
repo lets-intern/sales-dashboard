@@ -23,6 +23,32 @@
   font-weight: 700;
 }
 
+.mg-h2-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.mg-h2-row .mg-h2 {
+  margin: 0;
+}
+
+/* 지금 어떤 템플릿을 편집 중인지 알려주는 배지. 선택 UI 는 템플릿 메뉴에 있다. */
+.mg-active-slot {
+  flex-shrink: 0;
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: 999px;
+}
+
 .mg-sub {
   color: var(--ink-2);
   font-size: 12px;
@@ -222,4 +248,288 @@
 .mg-result-actions label {
   font-size: 12px;
   color: var(--ink-2);
+}
+
+/* ── 템플릿 메뉴 ──
+   기본형은 본문 위 가로 바(좁은 화면). 여백이 충분하면 본문 왼쪽에 세로로 띄운다.
+   임계값은 본문 980px + 양쪽에 패널 1개가 들어갈 폭으로 잡는다. */
+.tm-root {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 12px 14px;
+  margin: 0 auto 16px;
+  max-width: 980px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+}
+
+.tm-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+.tm-head b {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-2);
+}
+
+.tm-collapse,
+.tm-reopen {
+  font-size: 11px;
+  color: var(--ink-3);
+  background: none;
+  border: none;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+.tm-collapse:hover,
+.tm-reopen:hover {
+  color: var(--accent);
+  background: var(--line-2);
+}
+
+.tm-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+/* 항목 = 이름 + 보조 액션. 액션 자리는 항상 확보해 두고 표시만 토글한다.
+   (hover 때 자리가 생기면 이름이 밀려 목록 전체가 흔들린다.) */
+.tm-item {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 4px 2px 2px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.tm-item:hover {
+  border-color: var(--line);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+.tm-item:has(.tm-select.active) {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.tm-select {
+  min-width: 0;
+  max-width: 200px;
+  text-align: left;
+  padding: 5px 8px;
+  font-size: 13px;
+  font-weight: 500;
+  background: none;
+  color: var(--ink-2);
+  border: none;
+  border-radius: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tm-select:hover:not(:disabled) {
+  color: var(--ink);
+}
+.tm-select.active {
+  color: var(--accent);
+  font-weight: 700;
+}
+.tm-select:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* 가로 바에서는 자리를 잡아두면 칩마다 빈 여백이 생겨 폭이 들쭉날쭉해진다.
+   여기서는 접었다가 hover 때 펼친다(세로 패널에서는 반대로 자리를 고정한다). */
+.tm-item-actions {
+  display: none;
+  gap: 1px;
+}
+.tm-item:hover .tm-item-actions,
+.tm-item:focus-within .tm-item-actions {
+  display: flex;
+}
+
+.tm-icon {
+  padding: 4px 5px;
+  font-size: 10px;
+  line-height: 1.2;
+  color: var(--ink-3);
+  background: none;
+  border: none;
+  border-radius: 4px;
+}
+.tm-icon:hover:not(:disabled) {
+  background: var(--surface);
+  color: var(--ink);
+}
+.tm-icon:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+.tm-danger:hover:not(:disabled) {
+  background: var(--s-red-bg);
+  color: var(--s-red-fg);
+}
+
+.tm-rename-input {
+  max-width: 200px;
+  padding: 5px 8px;
+  font-size: 13px;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.tm-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.tm-btn {
+  padding: 7px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  background: var(--surface-2);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+}
+.tm-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.tm-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.tm-btn-primary {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.tm-btn-primary:hover:not(:disabled) {
+  color: #fff;
+  opacity: 0.88;
+}
+
+.tm-note {
+  display: none; /* 가로 바에서는 숨기고, 세로 패널에서만 보여준다 */
+}
+
+.tm-status {
+  margin: 0;
+  flex-basis: 100%;
+  font-size: 11px;
+  color: var(--accent);
+}
+
+.tm-reopen {
+  display: block;
+  margin: 0 auto 12px;
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+
+/* 본문(980px) 왼쪽에 200px 패널 + 여백이 들어갈 때만 세로로 띄운다. */
+@media (min-width: 1440px) {
+  .tm-root {
+    position: fixed;
+    top: 78px;
+    left: calc(50% - 710px);
+    width: 200px;
+    max-width: none;
+    margin: 0;
+    max-height: calc(100vh - 108px);
+    overflow-y: auto;
+    display: block;
+    padding: 12px;
+    z-index: 20;
+  }
+
+  .tm-head {
+    justify-content: space-between;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--line-2);
+  }
+
+  .tm-list {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 4px;
+    margin-bottom: 10px;
+  }
+  .tm-item {
+    justify-content: space-between;
+  }
+  /* 세로 목록에서는 액션 자리를 늘 확보해 hover 때 이름이 밀리지 않게 한다. */
+  .tm-item-actions {
+    display: flex;
+    visibility: hidden;
+  }
+  .tm-item:hover .tm-item-actions,
+  .tm-item:focus-within .tm-item-actions {
+    visibility: visible;
+  }
+  .tm-select {
+    flex: 1;
+    max-width: none;
+  }
+  .tm-rename-input {
+    width: 100%;
+    max-width: none;
+  }
+
+  .tm-actions {
+    flex-direction: column;
+    padding-top: 10px;
+    border-top: 1px solid var(--line-2);
+  }
+  .tm-btn {
+    white-space: normal;
+    line-height: 1.35;
+  }
+
+  .tm-note {
+    display: block;
+    margin: 8px 0 0;
+    font-size: 11px;
+    line-height: 1.45;
+    color: var(--ink-3);
+    /* 한국어는 어절 단위로 끊어야 "시작합니 / 다." 같은 낱글자 고아가 안 생긴다 */
+    word-break: keep-all;
+  }
+  .tm-status {
+    margin-top: 6px;
+  }
+
+  .tm-reopen {
+    position: fixed;
+    top: 78px;
+    left: calc(50% - 710px);
+    margin: 0;
+    border-radius: 7px;
+    box-shadow: var(--shadow);
+    z-index: 20;
+  }
 }

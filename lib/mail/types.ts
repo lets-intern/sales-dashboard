@@ -9,10 +9,11 @@ export const GENERATOR_KEYS: readonly GeneratorKey[] = [
   "activity",
 ];
 
-// 슬롯 번호(1~5). 각 슬롯이 제목+본문을 독립 저장한다.
-export type SlotNumber = 1 | 2 | 3 | 4 | 5;
+// 슬롯 번호(1 이상). 개수 고정이 아니며, 행이 존재하는 번호가 곧 존재하는 템플릿이다.
+export type SlotNumber = number;
 
-export const SLOT_NUMBERS: readonly SlotNumber[] = [1, 2, 3, 4, 5];
+// 최초 진입 시 시드로 만들어 두는 슬롯 번호. 이후 추가/삭제로 달라진다.
+export const INITIAL_SLOT_NUMBERS: readonly SlotNumber[] = [1, 2, 3, 4, 5];
 
 // mail_slots: 생성기 × 슬롯별 제목/본문(서식 포함). PK (generator, slot).
 export type MailSlot = {
@@ -20,8 +21,15 @@ export type MailSlot = {
   slot: number;
   subject: string;
   body: string; // 본문 HTML
+  name?: string; // 사용자 지정 이름. 빈 문자열이면 "템플릿 N" 으로 표시한다.
   updated_at?: string;
 };
+
+// 슬롯 표시 이름. 사용자가 지정한 이름이 없으면 번호 기반 기본 이름을 쓴다.
+export function slotDisplayName(slot: number, name?: string | null): string {
+  const trimmed = (name ?? "").trim();
+  return trimmed.length > 0 ? trimmed : `템플릿 ${slot}`;
+}
 
 // mail_defaults.kind — 기본값 대상(제목/본문).
 export type DefaultKind = "subject" | "body";

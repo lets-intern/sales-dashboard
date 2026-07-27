@@ -5,6 +5,7 @@
 
 import "./mail.css";
 import { useMailGenerator } from "./useMailGenerator";
+import TemplateMenu from "./TemplateMenu";
 import SlotBar from "./SlotBar";
 import ValueForm from "./ValueForm";
 import ResultPanel from "./ResultPanel";
@@ -23,11 +24,14 @@ export default function MailGenerator({
   const ctrl = useMailGenerator(config, initialFieldValues);
 
   return (
-    <div className="mg-root">
-      <SlotBar ctrl={ctrl} />
-      <ValueForm fields={config.fields} ctrl={ctrl} />
-      <ResultPanel ctrl={ctrl} />
-      <GmailPanel ctrl={ctrl} config={config} />
-    </div>
+    <>
+      <TemplateMenu ctrl={ctrl} />
+      <div className="mg-root">
+        <SlotBar ctrl={ctrl} />
+        <ValueForm fields={config.fields} ctrl={ctrl} />
+        <ResultPanel ctrl={ctrl} />
+        <GmailPanel ctrl={ctrl} config={config} />
+      </div>
+    </>
   );
 }
