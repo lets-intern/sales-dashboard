@@ -58,6 +58,9 @@ export const SUPPLIER = {
   contact: "official@letscareer.co.kr",
 };
 
+// 입금 계좌 (결제 방법에 '계좌이체'가 포함되면 문서에 자동 표기)
+export const BANK_ACCOUNT = "하나은행 769-910375-51407 (송다예/아이엔지)";
+
 export const STATUS_COLOR: Record<string, string> = {
   "시작 전": "gray",
   "논의 진행 중": "amber",

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useStore } from "./store";
-import { SUPPLIER } from "@/lib/constants";
+import { BANK_ACCOUNT, SUPPLIER } from "@/lib/constants";
 import type { Deal, StatementData, StatementLine } from "@/lib/types";
 import { ymd, yymmdd } from "@/lib/utils";
 
@@ -293,6 +293,12 @@ export default function DocModal({
                 onChange={(e) => patch({ pay_method: e.target.value })}
               />
             </div>
+            {/계좌|이체/.test(data.pay_method) && (
+              <div className="stmt-foot-row">
+                <span className="lab">*입금 계좌:</span>
+                <span className="stmt-acct">{BANK_ACCOUNT}</span>
+              </div>
+            )}
             <div className="stmt-foot-row">
               <span className="lab">*담당자:</span>
               <input

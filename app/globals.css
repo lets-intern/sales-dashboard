@@ -1528,6 +1528,13 @@ td.actions {
   color: #1a1d24;
   background: transparent;
 }
+.stmt-foot-row .stmt-acct {
+  flex: 1;
+  padding: 4px 2px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1d24;
+}
 
 @media print {
   @page {
