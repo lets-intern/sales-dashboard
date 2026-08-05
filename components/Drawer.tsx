@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useStore } from "./store";
 import AmountInput from "./AmountInput";
 import { TrashIcon } from "./icons";
-import StatementModal from "./StatementModal";
+import DocModal, { type DocMode } from "./DocModal";
 import { DEAL_STATUS, ITEM_STATUS, SEGMENTS, TYPES } from "@/lib/constants";
 import { itemName, quarterOf } from "@/lib/utils";
 
@@ -34,7 +34,7 @@ export default function Drawer({
     return () => document.removeEventListener("keydown", onKey);
   }, [onClose]);
 
-  const [showStatement, setShowStatement] = useState(false);
+  const [docMode, setDocMode] = useState<DocMode | null>(null);
 
   const d = deals.find((x) => x.id === dealId) || null;
   const open = !!d;
@@ -54,7 +54,15 @@ export default function Drawer({
           />
           <button
             className="stmt-btn"
-            onClick={() => setShowStatement(true)}
+            onClick={() => setDocMode("quote")}
+            disabled={!d}
+            title="견적서 생성"
+          >
+            견적서
+          </button>
+          <button
+            className="stmt-btn"
+            onClick={() => setDocMode("statement")}
             disabled={!d}
             title="거래명세서 생성"
           >
@@ -306,8 +314,8 @@ export default function Drawer({
           )}
         </div>
       </aside>
-      {d && showStatement && (
-        <StatementModal deal={d} onClose={() => setShowStatement(false)} />
+      {d && docMode && (
+        <DocModal deal={d} mode={docMode} onClose={() => setDocMode(null)} />
       )}
     </>
   );

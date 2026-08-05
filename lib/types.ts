@@ -40,6 +40,7 @@ export type Deal = {
   period_end: string | null;
   comm_notes: string;
   statement: StatementData | null;
+  quote?: StatementData | null; // 견적서 (거래명세서와 동일 구조, 별도 저장)
 };
 
 export type Item = {

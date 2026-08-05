@@ -1,4 +1,10 @@
-export const TYPES = ["광고 대행", "취업 교육", "채용 연계"];
+export const TYPES = [
+  "광고대행(교육)",
+  "광고대행(채용공고)",
+  "취업 교육",
+  "채용 연계",
+  "광고 대행",
+];
 export const SEGMENTS = ["B2B", "B2U"];
 export const DEAL_STATUS = [
   "시작 전",
@@ -65,9 +71,12 @@ export const STATUS_COLOR: Record<string, string> = {
 };
 
 export const TYPE_TAG: Record<string, [string, string]> = {
-  "광고 대행": ["var(--s-amber-bg)", "var(--s-amber-fg)"],
+  "광고대행(교육)": ["var(--s-amber-bg)", "var(--s-amber-fg)"],
+  "광고대행(채용공고)": ["var(--s-blue-bg)", "var(--s-blue-fg)"],
   "취업 교육": ["var(--s-violet-bg)", "var(--s-violet-fg)"],
   "채용 연계": ["#ffe0ef", "#d6246e"],
+  // 레거시(기존 데이터 호환)
+  "광고 대행": ["var(--s-gray-bg)", "var(--s-gray-fg)"],
 };
 
 // 더 이상 사용하지 않는 채널 (드롭다운에서 숨김 처리)

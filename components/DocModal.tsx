@@ -6,6 +6,24 @@ import { SUPPLIER } from "@/lib/constants";
 import type { Deal, StatementData, StatementLine } from "@/lib/types";
 import { ymd, yymmdd } from "@/lib/utils";
 
+export type DocMode = "statement" | "quote";
+
+const CONFIG: Record<
+  DocMode,
+  { title: string; dateLabel: string; noteLine: string }
+> = {
+  statement: {
+    title: "거 래 내 역 서",
+    dateLabel: "영수일 ▶",
+    noteLine: "※ 하기와 같이 영수합니다.",
+  },
+  quote: {
+    title: "견 적 서",
+    dateLabel: "견적일 ▶",
+    noteLine: "※ 하기와 같이 견적합니다. (견적일로부터 10일간 유효합니다.)",
+  },
+};
+
 function buildDefault(
   deal: Deal,
   clientName: string,
@@ -49,19 +67,23 @@ function StampMark() {
   );
 }
 
-export default function StatementModal({
+export default function DocModal({
   deal,
+  mode,
   onClose,
 }: {
   deal: Deal;
+  mode: DocMode;
   onClose: () => void;
 }) {
   const { clients, updateDeal } = useStore();
   const client = clients.find((c) => c.id === deal.client_id) || null;
+  const cfg = CONFIG[mode];
+  const field = mode === "quote" ? "quote" : "statement";
 
   const [data, setData] = useState<StatementData>(
     () =>
-      deal.statement ||
+      (deal[field] as StatementData | null | undefined) ||
       buildDefault(
         deal,
         client?.name || "",
@@ -80,7 +102,7 @@ export default function StatementModal({
 
   function commit(next: StatementData) {
     setData(next);
-    updateDeal(deal.id, { statement: next }, true);
+    updateDeal(deal.id, { [field]: next } as Partial<Deal>, true);
   }
   function patch(p: Partial<StatementData>) {
     commit({ ...data, ...p });
@@ -132,13 +154,13 @@ export default function StatementModal({
 
       <div className="stmt-print">
         <div className="stmt-sheet">
-          <h1 className="stmt-title">거 래 내 역 서</h1>
+          <h1 className="stmt-title">{cfg.title}</h1>
 
           <div className="stmt-header">
             <div className="stmt-recipient">
               <div className="stmt-to">{recipient}</div>
               <div className="stmt-meta">
-                <span className="lab">영수일 ▶</span>
+                <span className="lab">{cfg.dateLabel}</span>
                 <input
                   type="date"
                   value={data.receipt_date}
@@ -183,7 +205,7 @@ export default function StatementModal({
             </div>
           </div>
 
-          <div className="stmt-note-line">※ 하기와 같이 영수합니다.</div>
+          <div className="stmt-note-line">{cfg.noteLine}</div>
 
           <table className="stmt-items">
             <thead>
